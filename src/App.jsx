@@ -3,8 +3,8 @@ import { HashRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
 import { Provider } from 'react-redux';
 import { Toaster } from 'react-hot-toast';
 import { store } from './app/store';
-// import SignUpPage from './pages/SignUpPage.jsx';
 import LoginPage from './pages/LoginPage.jsx';
+import Poll_Page from './pages/Poll_Page.jsx';
 
 const App = () => {
   return (
@@ -13,8 +13,8 @@ const App = () => {
         <Toaster position="top-right" />
         <Routes>
           <Route path="/login" element={<LoginPage />} />
-          {/* <Route path="/signup" element={<SignUpPage />} /> */}
           <Route path="/" element={<Navigate to="/login" />} />
+          <Route path="/PollPage" element={<Poll_Page />} />  
         </Routes>
       </Router>
     </Provider>
