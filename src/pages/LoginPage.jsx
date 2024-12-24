@@ -132,7 +132,6 @@ const LoginPage = () => {
             </div>
           </div>
 
-          {/* Only show formError if no other error exists */}
           {(!errors.emailError && !errors.passwordError) && errors.formError && (
             <p className="text-red-500 text-sm">{errors.formError}</p>
           )}
