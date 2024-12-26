@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate, Link } from 'react-router-dom';
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { login } from '../features/authSlice';
 import { handleError } from '../utils/errorHandler';
+import { validateEmail } from '../utils/validateEmail';
 
 const LoginPage = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -23,10 +24,9 @@ const LoginPage = () => {
   const validateForm = () => {
     const newErrors = {};
 
-    if (!formData.email) {
-      newErrors.emailError = 'Email is required';
-    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.emailError = 'Email is not valid';
+    const emailError = validateEmail(formData.email);
+    if (emailError) {
+      newErrors.emailError = emailError;
     }
 
     if (!formData.password) {
@@ -55,9 +55,7 @@ const LoginPage = () => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-
     setErrors((prevState) => ({ ...prevState, formError: '' }));
-
     setFormData((prevState) => ({
       ...prevState,
       [name]: value,
@@ -65,22 +63,13 @@ const LoginPage = () => {
 
     const newErrors = { ...errors };
     if (name === 'email') {
-      if (!value) {
-        newErrors.emailError = 'Email is required';
-      } else if (!/\S+@\S+\.\S+/.test(value)) {
-        newErrors.emailError = 'Enter valid email';
-      } else {
-        newErrors.emailError = '';
-      }
+      newErrors.emailError = validateEmail(value);
     }
 
     if (name === 'password') {
-      if (!value) {
-        newErrors.passwordError = 'Password is required';
-      } else {
-        newErrors.passwordError = '';
-      }
+      newErrors.passwordError = value ? '' : 'Password is required';
     }
+
     setErrors(newErrors);
   };
 
@@ -118,13 +107,11 @@ const LoginPage = () => {
                   disabled={isLoading}
                   className={`mt-1 block w-full px-3 py-2 border rounded-md disabled:bg-gray-100 ${errors.passwordError ? 'border-red-500' : 'border-gray-300'}`}
                   value={formData.password}
-                  onChange={handleInputChange}
-                />
+                  onChange={handleInputChange} />
                 <button
                   type="button"
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                  onClick={() => setShowPassword(!showPassword)}
-                >
+                  onClick={() => setShowPassword(!showPassword)}>
                   {showPassword ? <FaEye size={20} /> : <FaEyeSlash size={20} />}
                 </button>
               </div>
@@ -152,8 +139,7 @@ const LoginPage = () => {
                     className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
                     xmlns="http://www.w3.org/2000/svg"
                     fill="none"
-                    viewBox="0 0 24 24"
-                  >
+                    viewBox="0 0 24 24">
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                     <path
                       className="opacity-75"
@@ -169,7 +155,7 @@ const LoginPage = () => {
             </button>
             <p className="text-center text-sm text-gray-600">
               Don't have an account?{' '}
-              <Link to="/signup" className="font-medium text-blue-600 hover:text-blue-500">
+              <Link to="/SignUp" className="font-medium text-blue-600 hover:text-blue-500">
                 Create an account
               </Link>
             </p>
