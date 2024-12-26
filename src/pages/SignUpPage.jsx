@@ -1,23 +1,29 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { validateEmail } from "../utils/validateEmail";
-import { signup } from "../features/authSlice";
-import { useDispatch } from "react-redux";
+import { fetchRoles, signup } from "../features/authSlice";
+import { useDispatch, useSelector } from "react-redux";
 
 const SignUpPage = () => {
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
     email: "",
-    role: "user",
+    role: "",
     password: "",
     confirmPassword: "",
   });
+  
   const [errors, setErrors] = useState({});
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
   const dispatch = useDispatch();
+
+  const { roles, rolesLoading } = useSelector((state) => state.auth);
+  useEffect(() => {
+    dispatch(fetchRoles());
+  }, [dispatch]);
 
   const validateField = (name, value) => {
     if (!value.trim()) {
@@ -39,12 +45,16 @@ const SignUpPage = () => {
     if (name === "confirmPassword" && value !== formData.password) {
       return "Passwords do not match";
     }
+    if (name === "role" && value === "") {
+      return "Role is required";
+    }
     return "";
   };
 
   const validateForm = () => {
     const newErrors = {};
     Object.keys(formData).forEach((field) => {
+         if (field === "role" && formData.role === "") return;
       const error = validateField(field, formData[field]);
       if (error) {
         newErrors[field] = error;
@@ -166,9 +176,19 @@ const SignUpPage = () => {
                 value={formData.role}
                 onChange={handleInputChange}
               >
-                <option value="user">User</option>
-                <option value="admin">Admin</option>
+                {rolesLoading ? (
+                  <option>Loading roles...</option>
+                ) : (
+                  roles.map((role) => (
+                    <option key={role.id} value={role.name}>
+                      {role.name}
+                    </option>
+                  ))
+                )}
               </select>
+              {errors.role && (
+                <p className="text-red-500 text-sm">{errors.role}</p>
+              )}
             </div>
             <div>
               <label
