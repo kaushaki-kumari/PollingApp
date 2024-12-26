@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
+import { validateEmail } from '../utils/validateEmail';
 
 const SignUpPage = () => {
   const [formData, setFormData] = useState({
@@ -27,16 +28,15 @@ const SignUpPage = () => {
       newErrors.lastName = 'Last name is required';
     }
 
-    if (!formData.email.trim()) {
-      newErrors.email = 'Email is required';
-    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = 'email is not valid';
+    const emailError = validateEmail(formData.email);
+    if (emailError) {
+      newErrors.email = emailError;
     }
 
     if (!formData.password) {
       newErrors.password = 'Password is required';
-    } else if (formData.password.length < 6) {
-      newErrors.password = 'Password must be at least 6 characters';
+    } else if (formData.password.length < 8) {
+      newErrors.password = 'Password must be at least 8 characters';
     }
 
     if (formData.password !== formData.confirmPassword) {
@@ -47,12 +47,12 @@ const SignUpPage = () => {
     return Object.keys(newErrors).length === 0;
   };
 
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-
-    setFormData({ ...formData, [name]: value });
-    validateForm();
+    setFormData((prevState) => ({ ...prevState, [name]: value }));
   };
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -62,7 +62,7 @@ const SignUpPage = () => {
     }
 
     try {
-      const response = await fetch('http://192.168.68.102:3000/user/register', {
+      const response = await fetch('http://192.168.68.110/user/register', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -77,7 +77,7 @@ const SignUpPage = () => {
       }
 
       toast.success('Sign Up Successfully!!');
-      navigate('/login'); 
+      navigate('/login');
     } catch (error) {
       toast.error(error.message);
     }
@@ -95,11 +95,11 @@ const SignUpPage = () => {
               </label>
               <input
                 id="firstName"
+                name="firstName"
                 type="text"
                 className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md"
                 value={formData.firstName}
-                oonChange={handleInputChange}
-              />
+                onChange={handleInputChange}/>
               {errors.firstName && <p className="text-red-500 text-sm">{errors.firstName}</p>}
             </div>
 
@@ -109,10 +109,11 @@ const SignUpPage = () => {
               </label>
               <input
                 id="lastName"
+                name="lastName"
                 type="text"
                 className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md"
                 value={formData.lastName}
-                onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
+                onChange={handleInputChange}
               />
               {errors.lastName && <p className="text-red-500 text-sm">{errors.lastName}</p>}
             </div>
@@ -123,10 +124,11 @@ const SignUpPage = () => {
               </label>
               <input
                 id="email"
+                name="email"
                 type="text"
                 className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md"
                 value={formData.email}
-                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                onChange={handleInputChange}
               />
               {errors.email && <p className="text-red-500 text-sm">{errors.email}</p>}
             </div>
@@ -137,9 +139,10 @@ const SignUpPage = () => {
               </label>
               <select
                 id="role"
+                name="role"
                 className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md"
                 value={formData.role}
-                onChange={(e) => setFormData({ ...formData, role: e.target.value })}
+                onChange={handleInputChange}
               >
                 <option value="user">User</option>
                 <option value="admin">Admin</option>
@@ -153,10 +156,11 @@ const SignUpPage = () => {
               <div className="relative">
                 <input
                   id="password"
+                  name="password" //
                   type={showPassword ? 'text' : 'password'}
                   className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md"
                   value={formData.password}
-                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                  onChange={handleInputChange}
                 />
                 <button
                   type="button"
@@ -175,10 +179,11 @@ const SignUpPage = () => {
               </label>
               <input
                 id="confirmPassword"
+                name="confirmPassword"
                 type="password"
                 className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md"
                 value={formData.confirmPassword}
-                onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
+                onChange={handleInputChange}
               />
               {errors.confirmPassword && <p className="text-red-500 text-sm">{errors.confirmPassword}</p>}
             </div>
