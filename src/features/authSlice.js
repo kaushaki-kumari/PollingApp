@@ -6,7 +6,6 @@ export const login = createAsyncThunk(
   'auth/login',
   async (formData, { rejectWithValue }) => {
     const baseUrl = import.meta.env.VITE_BASE_URL;
-    
     try {
       const response = await fetch(`${baseUrl}/user/login`, {
         method: 'POST',

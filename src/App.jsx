@@ -5,6 +5,7 @@ import { Toaster } from 'react-hot-toast';
 import { store } from './app/store';
 import LoginPage from './pages/LoginPage.jsx';
 import Poll_Page from './pages/Poll_Page.jsx';
+// import SignUpPage from './pages/SignUpPage.jsx';
 
 const App = () => {
   return (
