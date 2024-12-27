@@ -6,6 +6,7 @@ import { store } from './app/store';
 import LoginPage from './pages/LoginPage.jsx';
 import Poll_Page from './pages/Poll_Page.jsx';
 import SignUpPage from './pages/SignUpPage.jsx';
+import NavBar from './components/NavBar.jsx';
 
 const App = () => {
   return (
@@ -17,6 +18,7 @@ const App = () => {
           <Route path="/" element={<Navigate to="/login" />} />
           <Route path="/pollPage" element={<Poll_Page />} />  
           <Route path="/signUp" element={<SignUpPage />} />
+          <Route path="/nav" element={<NavBar />} /> 
         </Routes>
       </Router>
     </Provider>
