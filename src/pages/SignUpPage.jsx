@@ -17,6 +17,7 @@ const SignUpPage = () => {
 
   const [errors, setErrors] = useState({});
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
@@ -25,9 +26,14 @@ const SignUpPage = () => {
     dispatch(fetchRoles());
   }, [dispatch]);
 
+  const formatFieldName = (fieldName) => {
+    return fieldName.charAt(0).toUpperCase() + fieldName.slice(1).toLowerCase();
+  };
+
   const validateField = (name, value) => {
     if (!value.trim()) {
-      return `${name} is required`;
+      const formattedName = formatFieldName(name);
+      return `${formattedName} is required`;
     }
     if (name === "email" && validateEmail(value)) {
       return "Invalid email address";
@@ -213,7 +219,7 @@ const SignUpPage = () => {
                   onClick={() => setShowPassword((prev) => !prev)}
                   className="absolute inset-y-0 right-3 flex items-center text-gray-400 hover:text-gray-600"
                 >
-                  {showPassword ? <FaEye />: <FaEyeSlash /> }
+                  {showPassword ? <FaEye /> : <FaEyeSlash />}
                 </button>
               </div>
               {errors.password && (
@@ -227,14 +233,23 @@ const SignUpPage = () => {
               >
                 Confirm Password
               </label>
-              <input
-                id="confirmPassword"
-                name="confirmPassword"
-                type="password"
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md"
-                value={formData.confirmPassword}
-                onChange={handleInputChange}
-              />
+              <div className="relative">
+                <input
+                  id="confirmPassword"
+                  name="confirmPassword"
+                  type={showConfirmPassword ? "text" : "password"}
+                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md"
+                  value={formData.confirmPassword}
+                  onChange={handleInputChange}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword((prev) => !prev)}
+                  className="absolute inset-y-0 right-3 flex items-center text-gray-400 hover:text-gray-600"
+                >
+                  {showConfirmPassword ? <FaEye /> : <FaEyeSlash />}
+                </button>
+              </div>
               {errors.confirmPassword && (
                 <p className="text-red-500 text-sm mt-0.5">
                   {errors.confirmPassword}

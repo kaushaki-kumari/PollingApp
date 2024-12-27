@@ -45,7 +45,7 @@ const LoginPage = () => {
     dispatch(login(formData))
       .unwrap()
       .then(() => {
-        navigate('/PollPage');
+        navigate('/pollPage');
       })
       .catch((err) => {
         const errorMessage = handleError(err);
@@ -155,7 +155,7 @@ const LoginPage = () => {
             </button>
             <p className="text-center text-sm text-gray-600">
               Don't have an account?{' '}
-              <Link to="/SignUp" className="font-medium text-blue-600 hover:text-blue-500">
+              <Link to="/signUp" className="font-medium text-blue-600 hover:text-blue-500">
                 Create an account
               </Link>
             </p>

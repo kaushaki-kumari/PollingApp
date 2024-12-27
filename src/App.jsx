@@ -15,8 +15,8 @@ const App = () => {
         <Routes>
           <Route path="/login" element={<LoginPage />} />
           <Route path="/" element={<Navigate to="/login" />} />
-          <Route path="/PollPage" element={<Poll_Page />} />  
-          <Route path="/SignUp" element={<SignUpPage />} />
+          <Route path="/pollPage" element={<Poll_Page />} />  
+          <Route path="/signUp" element={<SignUpPage />} />
         </Routes>
       </Router>
     </Provider>
