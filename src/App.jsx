@@ -5,7 +5,7 @@ import { Toaster } from 'react-hot-toast';
 import { store } from './app/store';
 import LoginPage from './pages/LoginPage.jsx';
 import Poll_Page from './pages/Poll_Page.jsx';
-// import SignUpPage from './pages/SignUpPage.jsx';
+import SignUpPage from './pages/SignUpPage.jsx';
 
 const App = () => {
   return (
@@ -15,8 +15,8 @@ const App = () => {
         <Routes>
           <Route path="/login" element={<LoginPage />} />
           <Route path="/" element={<Navigate to="/login" />} />
-          <Route path="/PollPage" element={<Poll_Page />} />  
-          {/* <Route path="/SignUp" element={<SignUpPage />} /> */}
+          <Route path="/pollPage" element={<Poll_Page />} />  
+          <Route path="/signUp" element={<SignUpPage />} />
         </Routes>
       </Router>
     </Provider>
