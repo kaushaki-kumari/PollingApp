@@ -28,7 +28,9 @@ const SignUpPage = () => {
   }, [dispatch]);
 
   const formatFieldName = (fieldName) => {
-    return fieldName.charAt(0).toUpperCase() + fieldName.slice(1).toLowerCase();
+    return fieldName
+      .replace(/([a-z])([A-Z])/g, "$1 $2")
+      .replace(/^./, (str) => str.toUpperCase());
   };
 
   const validateField = (name, value) => {
