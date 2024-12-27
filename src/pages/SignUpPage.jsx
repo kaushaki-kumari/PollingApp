@@ -14,7 +14,7 @@ const SignUpPage = () => {
     password: "",
     confirmPassword: "",
   });
-  
+
   const [errors, setErrors] = useState({});
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
@@ -54,7 +54,7 @@ const SignUpPage = () => {
   const validateForm = () => {
     const newErrors = {};
     Object.keys(formData).forEach((field) => {
-         if (field === "role" && formData.role === "") return;
+      if (field === "role" && formData.role === "") return;
       const error = validateField(field, formData[field]);
       if (error) {
         newErrors[field] = error;
@@ -121,7 +121,9 @@ const SignUpPage = () => {
                 onChange={handleInputChange}
               />
               {errors.firstName && (
-                <p className="text-red-500 text-sm">{errors.firstName}</p>
+                <p className="text-red-500 text-sm mt-0.5">
+                  {errors.firstName}
+                </p>
               )}
             </div>
             <div>
@@ -140,7 +142,7 @@ const SignUpPage = () => {
                 onChange={handleInputChange}
               />
               {errors.lastName && (
-                <p className="text-red-500 text-sm">{errors.lastName}</p>
+                <p className="text-red-500 text-sm mt-0.5">{errors.lastName}</p>
               )}
             </div>
             <div>
@@ -159,7 +161,7 @@ const SignUpPage = () => {
                 onChange={handleInputChange}
               />
               {errors.email && (
-                <p className="text-red-500 text-sm">{errors.email}</p>
+                <p className="text-red-500 text-sm mt-0.5">{errors.email}</p>
               )}
             </div>
             <div>
@@ -187,7 +189,7 @@ const SignUpPage = () => {
                 )}
               </select>
               {errors.role && (
-                <p className="text-red-500 text-sm">{errors.role}</p>
+                <p className="text-red-500 text-sm mt-0.5">{errors.role}</p>
               )}
             </div>
             <div>
@@ -211,11 +213,11 @@ const SignUpPage = () => {
                   onClick={() => setShowPassword((prev) => !prev)}
                   className="absolute inset-y-0 right-3 flex items-center text-gray-400 hover:text-gray-600"
                 >
-                  {showPassword ? <FaEyeSlash /> : <FaEye />}
+                  {showPassword ? <FaEye />: <FaEyeSlash /> }
                 </button>
               </div>
               {errors.password && (
-                <p className="text-red-500 text-sm">{errors.password}</p>
+                <p className="text-red-500 text-sm mt-0.5">{errors.password}</p>
               )}
             </div>
             <div>
@@ -234,7 +236,9 @@ const SignUpPage = () => {
                 onChange={handleInputChange}
               />
               {errors.confirmPassword && (
-                <p className="text-red-500 text-sm">{errors.confirmPassword}</p>
+                <p className="text-red-500 text-sm mt-0.5">
+                  {errors.confirmPassword}
+                </p>
               )}
             </div>
           </div>
