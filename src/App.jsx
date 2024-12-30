@@ -15,9 +15,7 @@ import SignUpPage from "./pages/SignUpPage.jsx";
 import AddPollPage from "./pages/AddPollPage.jsx";
 import CreateUserPage from "./pages/CreateUserPage.jsx";
 import UsersPage from "./pages/UsersPage.jsx";
-import ProtectedRoute from "./routes/ProtectedRoute.jsx";
-import PublicRoute from "./routes/PublicRouted.jsx";
-import AdminRoute from "./routes/AdminRoute.jsx";
+import RouteWrapper from "./routes/CustomRoute.jsx";
 
 const App = () => {
   return (
@@ -27,9 +25,9 @@ const App = () => {
         <Routes>
           <Route
             element={
-              <PublicRoute>
+              <RouteWrapper type="public">
                 <Outlet />
-              </PublicRoute>
+              </RouteWrapper>
             }
           >
             <Route path="/login" element={<LoginPage />} />
@@ -38,18 +36,18 @@ const App = () => {
 
           <Route
             element={
-              <ProtectedRoute>
+              <RouteWrapper type="protected">
                 <Outlet />
-              </ProtectedRoute>
+              </RouteWrapper>
             }
           >
             <Route path="/polls" element={<Poll_Page />} />
 
             <Route
               element={
-                <AdminRoute>
+                <RouteWrapper type="admin">
                   <Outlet />
-                </AdminRoute>
+                </RouteWrapper>
               }
             >
               <Route path="/addPoll" element={<AddPollPage />} />
