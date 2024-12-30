@@ -45,7 +45,7 @@ const LoginPage = () => {
     dispatch(login(formData))
       .unwrap()
       .then(() => {
-        navigate('/nav');
+        navigate('/polls');
       })
       .catch((err) => {
         const errorMessage = handleError(err);
