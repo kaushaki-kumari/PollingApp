@@ -6,6 +6,7 @@ import { RxAvatar } from "react-icons/rx";
 import { AiOutlineMenu, AiOutlineClose } from "react-icons/ai";
 import { MdLogout } from "react-icons/md";
 import NavItem from "./NavItem";
+import { ROLE_ADMIN } from "../utils/constant";
 
 const NavBar = () => {
   const [showMenu, setShowMenu] = useState(false);
@@ -13,10 +14,8 @@ const NavBar = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { user } = useSelector((state) => state.auth);
-  const isAdmin = user?.roleId === 1;
 
   const adminNavItems = [
-    { to: "/polls", label: "Polls" },
     { to: "/addPoll", label: "Add Poll" },
     { to: "/createUser", label: "Create User" },
     { to: "/listUsers", label: "List Users" },
@@ -39,7 +38,12 @@ const NavBar = () => {
       <div className="max-w-7xl mx-auto px-4">
         <div className="flex justify-between h-16 items-center">
           <div className="flex items-center space-x-4">
-            {isAdmin && (
+            <div className="hidden md:block">
+            <NavItem to="/polls" >
+              Polls
+            </NavItem>
+            </div>
+            {user?.roleId === ROLE_ADMIN && (
               <div className="hidden md:flex space-x-4">
                 {adminNavItems.map((item) => (
                   <NavItem key={item.to} to={item.to}>
@@ -100,7 +104,8 @@ const NavBar = () => {
 
         {mobileMenuOpen && (
           <div className="absolute top-16 left-0 w-full bg-white shadow-lg md:hidden space-y-4">
-            {isAdmin && (
+            <NavItem to="/polls">Polls</NavItem>
+            {user?.roleId === ROLE_ADMIN && (
               <div className="flex flex-col space-y-2">
                 {adminNavItems.map((item) => (
                   <NavItem key={item.to} to={item.to}>

@@ -1,6 +1,6 @@
 import React from "react";
 
-const ListUsersPage = () => {
+const UsersPage = () => {
   return (
     <div>
       <p className="text-center text-gray-600 mt-4">
@@ -10,4 +10,4 @@ const ListUsersPage = () => {
   );
 };
 
-export default ListUsersPage;
+export default UsersPage;

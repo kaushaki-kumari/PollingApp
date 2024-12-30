@@ -1,28 +1,28 @@
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { handleError } from '../utils/errorHandler';
-import toast from 'react-hot-toast';
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import { handleError } from "../utils/errorHandler";
+import toast from "react-hot-toast";
 const baseUrl = import.meta.env.VITE_BASE_URL;
 
 export const login = createAsyncThunk(
-  'auth/login',
+  "auth/login",
   async (formData, { rejectWithValue }) => {
     try {
       const response = await fetch(`${baseUrl}/user/login`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(formData),
       });
-      
+
       if (!response.ok) {
         const data = await response.json();
-        throw new Error(data.message || 'Login failed');
+        throw new Error(data.message || "Login failed");
       }
-      
+
       const data = await response.json();
-      localStorage.setItem('user', JSON.stringify(data.user));
-      toast.success('Login successful!');
+      localStorage.setItem("user", JSON.stringify(data.user));
+      toast.success("Login successful!");
       return data.user;
     } catch (err) {
       const errorMessage = handleError(err);
@@ -32,21 +32,21 @@ export const login = createAsyncThunk(
   }
 );
 
-export const logout = createAsyncThunk('auth/logout', async () => {
-  localStorage.removeItem('user');
-  toast.success('Logged out successfully');
+export const logout = createAsyncThunk("auth/logout", async () => {
+  localStorage.removeItem("user");
+  toast.success("Logged out successfully");
 });
 
 export const fetchRoles = createAsyncThunk(
-  'auth/fetchRoles',
+  "auth/fetchRoles",
   async (_, { rejectWithValue }) => {
     try {
       const response = await fetch(`${baseUrl}/role/list`);
       if (!response.ok) {
-        throw new Error('Failed to fetch roles');
+        throw new Error("Failed to fetch roles");
       }
       const data = await response.json();
-      return data; 
+      return data;
     } catch (err) {
       const errorMessage = handleError(err);
       return rejectWithValue(errorMessage);
@@ -89,16 +89,16 @@ export const signup = createAsyncThunk(
 );
 
 const initialState = {
-  user: JSON.parse(localStorage.getItem('user')) || null,
+  user: JSON.parse(localStorage.getItem("user")) || null,
   isLoading: false,
   error: null,
-  isAuthenticated: !!localStorage.getItem('user'),
+  isAuthenticated: !!localStorage.getItem("user"),
   roles: [],
   rolesLoading: false,
 };
 
 const authSlice = createSlice({
-  name: 'auth',
+  name: "auth",
   initialState,
   reducers: {},
   extraReducers: (builder) => {

@@ -4,100 +4,60 @@ import {
   Routes,
   Route,
   Navigate,
-  useLocation,
+  Outlet,
 } from "react-router-dom";
 import { Provider } from "react-redux";
-import { useSelector } from "react-redux";
 import { Toaster } from "react-hot-toast";
 import { store } from "./app/store";
 import LoginPage from "./pages/LoginPage.jsx";
 import Poll_Page from "./pages/Poll_Page.jsx";
 import SignUpPage from "./pages/SignUpPage.jsx";
-import NavBar from "./components/NavBar.jsx";
 import AddPollPage from "./pages/AddPollPage.jsx";
 import CreateUserPage from "./pages/CreateUserPage.jsx";
-import ListUsersPage from "./pages/ListUsersPage.jsx";
-
-const ProtectedRoute = ({ children }) => {
-  const { isAuthenticated } = useSelector((state) => state.auth);
-  const location = useLocation();
-
-  return isAuthenticated ? (
-    <>
-      <NavBar />
-      {children}
-    </>
-  ) : (
-    <Navigate to="/login" state={{ from: location }} replace />
-  );
-};
-
-const PublicRoute = ({ children }) => {
-  const { isAuthenticated } = useSelector((state) => state.auth);
-  const location = useLocation();
-
-  return isAuthenticated ? (
-    <Navigate to="/polls" state={{ from: location }} replace />
-  ) : (
-    children
-  );
-};
+import UsersPage from "./pages/UsersPage.jsx";
+import ProtectedRoute from "./routes/ProtectedRoute.jsx";
+import PublicRoute from "./routes/PublicRouted.jsx";
+import AdminRoute from "./routes/AdminRoute.jsx";
 
 const App = () => {
-  return (  
+  return (
     <Provider store={store}>
       <Router>
         <Toaster position="top-right" />
         <Routes>
           <Route
-            path="/login"
             element={
               <PublicRoute>
-                <LoginPage />
+                <Outlet />
               </PublicRoute>
             }
-          />
+          >
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/signup" element={<SignUpPage />} />
+          </Route>
+
           <Route
-            path="/signUp"
-            element={
-              <PublicRoute>
-                <SignUpPage />
-              </PublicRoute>
-            }
-          />
-          <Route
-            path="/polls"
             element={
               <ProtectedRoute>
-                <Poll_Page />               
+                <Outlet />
               </ProtectedRoute>
             }
-          />
-           <Route
-            path="/addPoll"
-            element={
-              <ProtectedRoute>
-                <AddPollPage />               
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/CreateUser"
-            element={
-              <ProtectedRoute>
-                <CreateUserPage />               
-              </ProtectedRoute>
-            }
-          />
-           <Route
-            path="/listUsers"
-            element={
-              <ProtectedRoute>
-                <ListUsersPage />               
-              </ProtectedRoute>
-            }
-          />
-          <Route path="/" element={<Navigate to="/login" replace />} />
+          >
+            <Route path="/polls" element={<Poll_Page />} />
+
+            <Route
+              element={
+                <AdminRoute>
+                  <Outlet />
+                </AdminRoute>
+              }
+            >
+              <Route path="/addPoll" element={<AddPollPage />} />
+              <Route path="/createUser" element={<CreateUserPage />} />
+              <Route path="/listUsers" element={<UsersPage />} />
+            </Route>
+          </Route>
+
           <Route path="*" element={<Navigate to="/login" replace />} />
         </Routes>
       </Router>
