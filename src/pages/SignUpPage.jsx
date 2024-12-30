@@ -4,6 +4,7 @@ import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { validateEmail } from "../utils/validateEmail";
 import { fetchRoles, signup } from "../features/authSlice";
 import { useDispatch, useSelector } from "react-redux";
+import { handleError } from "../utils/errorHandler";
 
 const SignUpPage = () => {
   const [formData, setFormData] = useState({
@@ -98,10 +99,10 @@ const SignUpPage = () => {
       await dispatch(signup(formDataToSend)).unwrap();
       setShowConfirmation(true);
     } catch (error) {
-      console.error("Signup failed:", error);
+      const errorMessage = handleError(error);
       setErrors((prevErrors) => ({
         ...prevErrors,
-        general: error,
+        general: errorMessage,
       }));
     }
   };
