@@ -1,29 +1,28 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { handleError } from "../utils/errorHandler";
 import toast from "react-hot-toast";
-const baseUrl = import.meta.env.VITE_BASE_URL;
+import axios from "axios"; 
 
+const baseUrl = import.meta.env.VITE_BASE_URL;
 export const login = createAsyncThunk(
   "auth/login",
   async (formData, { rejectWithValue }) => {
     try {
-      const response = await fetch(`${baseUrl}/user/login`, {
-        method: "POST",
+      const response = await axios.post(`${baseUrl}/user/login`, formData, {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(formData),
       });
 
-      if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.message || "Login failed");
-      }
-
-      const data = await response.json();
-      localStorage.setItem("user", JSON.stringify(data.user));
+      localStorage.setItem(
+        "user",
+        JSON.stringify({
+          ...response.data.user,
+          token: response.data.token,
+        })
+      );
       toast.success("Login successful!");
-      return data.user;
+      return { ...response.data.user, token: response.data.token };
     } catch (err) {
       const errorMessage = handleError(err);
       toast.error(errorMessage);
@@ -41,12 +40,8 @@ export const fetchRoles = createAsyncThunk(
   "auth/fetchRoles",
   async (_, { rejectWithValue }) => {
     try {
-      const response = await fetch(`${baseUrl}/role/list`);
-      if (!response.ok) {
-        throw new Error("Failed to fetch roles");
-      }
-      const data = await response.json();
-      return data;
+      const response = await axios.get(`${baseUrl}/role/list`);
+      return response.data;
     } catch (err) {
       const errorMessage = handleError(err);
       return rejectWithValue(errorMessage);
@@ -58,26 +53,21 @@ export const signup = createAsyncThunk(
   "auth/signup",
   async (formData, { rejectWithValue }) => {
     try {
-      const response = await fetch(`${baseUrl}/user/register`, {
-        method: "POST",
+      const response = await axios.post(`${baseUrl}/user/register`, formData, {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(formData),
       });
 
-      const contentType = response.headers.get("content-type");
+      const contentType = response.headers["content-type"];
       if (!contentType || !contentType.includes("application/json")) {
         throw new Error(
           "Email is already registered. Please use a different email.."
         );
       }
-      const data = await response.json();
-      if (!response.ok) {
-        throw new Error(data.message || "Signup failed.");
-      }
+
       toast.success("Signup successful! Please log in.");
-      return data.user;
+      return response.data.user;
     } catch (err) {
       const errorMessage =
         err.name === "TypeError" && err.message === "Failed to fetch"
@@ -145,7 +135,7 @@ const authSlice = createSlice({
       .addCase(signup.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload;
-      });
+      })
   },
 });
 
