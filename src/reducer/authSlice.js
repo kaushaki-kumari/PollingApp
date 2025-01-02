@@ -1,7 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { handleError } from "../utils/errorHandler";
 import toast from "react-hot-toast";
-import axios from "axios"; 
+import axios from "axios";
 
 const baseUrl = import.meta.env.VITE_BASE_URL;
 export const login = createAsyncThunk(
@@ -135,7 +135,7 @@ const authSlice = createSlice({
       .addCase(signup.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload;
-      })
+      });
   },
 });
 
