@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
-import { logout } from "../features/authSlice";
+import { logout } from "../reducer/authSlice";
 import { RxAvatar } from "react-icons/rx";
 import { AiOutlineMenu, AiOutlineClose } from "react-icons/ai";
 import { MdLogout } from "react-icons/md";

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate, Link } from 'react-router-dom';
 import { FaEye, FaEyeSlash } from "react-icons/fa";
-import { login } from '../features/authSlice';
+import { login } from '../reducer/authSlice';
 import { handleError } from '../utils/errorHandler';
 import { validateEmail } from '../utils/validateEmail';
 

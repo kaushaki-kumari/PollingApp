@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchPolls, saveVote } from "../features/pollSlice";
+import { fetchPolls, saveVote } from "../reducer/pollSlice";
 import { FaRegEdit, FaChartBar } from "react-icons/fa";
 import { ROLE_ADMIN } from "../utils/constant";
 import Skeleton from "../components/Skeleton";  
@@ -61,7 +61,7 @@ const Poll_Page = () => {
               {polls.map((poll) => (
                 <div
                   key={poll.id}
-                  className="p-4 border rounded-lg shadow-sm transition"
+                  className="p-4 border rounded-lg shadow-sm transition "
                 >
                   {user?.roleId === ROLE_ADMIN && (
                     <div className="flex justify-center items-center mb-2 gap-2  text-red-500">
