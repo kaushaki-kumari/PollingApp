@@ -1,14 +1,14 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axiosInstance from "../utils/axiosInstance";
-import { PAGE_NO, LIMIT } from "../utils/constant";
+import { POLL_LIMIT } from "../utils/constant";
 import { handleError } from "../utils/errorHandler";
 
 export const fetchPolls = createAsyncThunk(
   "polls/fetchPolls",
-  async (pageNo = PAGE_NO, { rejectWithValue }) => {
+  async (pageNo = 1, { rejectWithValue }) => {
     try {
       const response = await axiosInstance.get(
-        `/poll/list/${pageNo}?limit=${LIMIT}`
+        `/poll/list/${pageNo}?limit=${POLL_LIMIT}`
       );
       return {
         rows: response.data.rows,
@@ -43,9 +43,7 @@ const pollSlice = createSlice({
     polls: [],
     isLoading: false,
     error: null,
-    votes: JSON.parse(localStorage.getItem("votes")) || {},
-    currentPage: PAGE_NO,
-    totalPages: 1,
+    currentPage: 1,
     hasMore: true,
   },
   reducers: {},
@@ -58,21 +56,16 @@ const pollSlice = createSlice({
 
       .addCase(fetchPolls.fulfilled, (state, action) => {
         state.isLoading = false;
-        const { rows, totalCount, currentPage } = action.payload;
+        const { rows, currentPage } = action.payload;
         const newPolls = rows.filter(
           (newPoll) =>
             !state.polls.some((existingPoll) => existingPoll.id === newPoll.id)
         );
-        if (rows.length < LIMIT) {
+        if (rows.length < POLL_LIMIT) {
           state.hasMore = false;
         }
         state.polls = [...state.polls, ...newPolls];
         state.currentPage = currentPage;
-        state.totalPages = Math.ceil(totalCount / LIMIT);
-
-        if (rows.length < LIMIT) {
-          state.hasMore = false;
-        }
       })
 
       .addCase(fetchPolls.rejected, (state, action) => {
@@ -82,10 +75,6 @@ const pollSlice = createSlice({
 
       .addCase(saveVote.fulfilled, (state, action) => {
         const { pollId, optionId, userId } = action.payload;
-        if (!state.votes[pollId]) {
-          state.votes[pollId] = {};
-        }
-        state.votes[pollId][userId] = optionId;
         const pollIndex = state.polls.findIndex((poll) => poll.id === pollId);
         if (pollIndex !== -1) {
           const optionIndex = state.polls[pollIndex].optionList.findIndex(
@@ -97,7 +86,6 @@ const pollSlice = createSlice({
             );
           }
         }
-        localStorage.setItem("votes", JSON.stringify(state.votes));
       })
       .addCase(saveVote.rejected, (_, action) => {
         console.error(action.payload);

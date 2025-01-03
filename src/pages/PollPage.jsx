@@ -2,27 +2,28 @@ import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchPolls, saveVote } from "../reducer/pollSlice";
 import { FaRegEdit, FaChartBar } from "react-icons/fa";
-import { ROLE_ADMIN, PAGE_NO } from "../utils/constant";
+import { MdDelete } from "react-icons/md";
+import { ROLE_ADMIN } from "../utils/constant";
 import Skeleton from "../components/Skeleton";
 import PollResultsModal from "../components/PollResultsModal";
 
-const Poll_Page = () => {
+const PollPage = () => {
   const dispatch = useDispatch();
   const { polls, isLoading, error, currentPage, hasMore } = useSelector(
     (state) => state.polls
   );
   const { user } = useSelector((state) => state.auth);
   const [selectedOptions, setSelectedOptions] = useState(
-    JSON.parse(localStorage.getItem("selectedOptions")) || {}
+    JSON.parse(localStorage.getItem(`selectedOptions_${user?.id}`)) || {}
   );
   const [votedPolls, setVotedPolls] = useState(
-    JSON.parse(localStorage.getItem("votes")) || {}
+    JSON.parse(localStorage.getItem(`votes_${user?.id}`)) || {}
   );
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isPollResultsModalOpen, setIsPollResultsModalOpen] = useState(false);
   const [currentPollResults, setCurrentPollResults] = useState(null);
 
   useEffect(() => {
-    dispatch(fetchPolls(PAGE_NO));
+    dispatch(fetchPolls());
   }, [dispatch]);
 
   const handleLoadMore = () => {
@@ -33,10 +34,6 @@ const Poll_Page = () => {
 
   useEffect(() => {
     if (user) {
-      const storedVotes =
-        JSON.parse(localStorage.getItem(`votes_${user.id}`)) || {};
-      setVotedPolls(storedVotes);
-
       const storedSelectedOptions =
         JSON.parse(localStorage.getItem(`selectedOptions_${user.id}`)) || {};
       setSelectedOptions(storedSelectedOptions);
@@ -49,21 +46,15 @@ const Poll_Page = () => {
       [pollId]: optionId,
     };
     setSelectedOptions(updatedSelectedOptions);
+    localStorage.setItem(
+      `selectedOptions_${user.id}`,
+      JSON.stringify(updatedSelectedOptions)
+    );
   };
 
   const handleSubmit = async (pollId) => {
     const selectedOption = selectedOptions[pollId];
     if (!selectedOption) return;
-
-    const updatedSelectedOptions = {
-      ...selectedOptions,
-      [pollId]: selectedOption,
-    };
-    localStorage.setItem(
-      `selectedOptions_${user.id}`,
-      JSON.stringify(updatedSelectedOptions)
-    );
-
     try {
       await dispatch(
         saveVote({
@@ -72,7 +63,6 @@ const Poll_Page = () => {
           userId: user.id,
         })
       ).unwrap();
-
       const updatedVotedPolls = {
         ...votedPolls,
         [pollId]: {
@@ -97,7 +87,7 @@ const Poll_Page = () => {
         title: poll.title,
         options: poll.optionList,
       });
-      setIsModalOpen(true);
+      setIsPollResultsModalOpen(true);
     }
   };
 
@@ -130,6 +120,7 @@ const Poll_Page = () => {
                         className="cursor-pointer w-8 h-8"
                         onClick={() => handleViewResults(poll.id)}
                       />
+                      <MdDelete className="w-8 h-8" />
                     </div>
                   )}
                   <h2 className="text-lg font-semibold flex justify-between items-center">
@@ -211,12 +202,12 @@ const Poll_Page = () => {
         </div>
       )}
       <PollResultsModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
+        isOpen={isPollResultsModalOpen}
+        onClose={() => setIsPollResultsModalOpen(false)}
         pollData={currentPollResults}
       />
     </div>
   );
 };
 
-export default Poll_Page;
+export default PollPage;

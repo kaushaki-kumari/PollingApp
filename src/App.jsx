@@ -8,7 +8,7 @@ import {
 } from "react-router-dom";
 
 import LoginPage from "./pages/LoginPage.jsx";
-import Poll_Page from "./pages/Poll_Page.jsx";
+import PollPage from "./pages/PollPage.jsx";
 import SignUpPage from "./pages/SignUpPage.jsx";
 import AddPollPage from "./pages/AddPollPage.jsx";
 import CreateUserPage from "./pages/CreateUserPage.jsx";
@@ -37,7 +37,7 @@ const App = () => {
             </RouteWrapper>
           }
         >
-          <Route path="/polls" element={<Poll_Page />} />
+          <Route path="/polls" element={<PollPage />} />
 
           <Route
             element={
