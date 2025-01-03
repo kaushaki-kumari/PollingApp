@@ -13,7 +13,7 @@ export const fetchPolls = createAsyncThunk(
       return {
         rows: response.data.rows,
         totalCount: response.data.count,
-        currentPage: pageNo
+        currentPage: pageNo,
       };
     } catch (err) {
       const errorMessage = handleError(err);
@@ -24,13 +24,12 @@ export const fetchPolls = createAsyncThunk(
 
 export const saveVote = createAsyncThunk(
   "polls/saveVote",
-  async ({ pollId, optionId }, { rejectWithValue }) => {
+  async ({ pollId, optionId, userId }, { rejectWithValue }) => {
     try {
-      const response = await axiosInstance.post(
-        `/vote/count`, 
-        { pollId, optionId }
-      );
-      return { pollId, optionId, response: response.data };
+      const response = await axiosInstance.post(`/vote/count`, {
+        optionId,
+      });
+      return { pollId, optionId, userId, response: response.data };
     } catch (err) {
       const errorMessage = handleError(err);
       return rejectWithValue(errorMessage);
@@ -47,7 +46,7 @@ const pollSlice = createSlice({
     votes: JSON.parse(localStorage.getItem("votes")) || {},
     currentPage: PAGE_NO,
     totalPages: 1,
-    hasMore: true
+    hasMore: true,
   },
   reducers: {},
   extraReducers: (builder) => {
@@ -56,27 +55,48 @@ const pollSlice = createSlice({
         state.isLoading = true;
         state.error = null;
       })
+
       .addCase(fetchPolls.fulfilled, (state, action) => {
         state.isLoading = false;
-        if (action.payload.currentPage === PAGE_NO) {
-          state.polls = action.payload.rows;
-        } else {
-          state.polls = [...state.polls, ...action.payload.rows];
+        const { rows, totalCount, currentPage } = action.payload;
+        const newPolls = rows.filter(
+          (newPoll) =>
+            !state.polls.some((existingPoll) => existingPoll.id === newPoll.id)
+        );
+        if (rows.length < LIMIT) {
+          state.hasMore = false;
         }
-        state.currentPage = action.payload.currentPage;
-        state.totalPages = Math.ceil(action.payload.totalCount / LIMIT);
-        const totalItems = action.payload.totalCount;
-        const currentItems = state.polls.length;
-        state.hasMore = currentItems < totalItems;
+        state.polls = [...state.polls, ...newPolls];
+        state.currentPage = currentPage;
+        state.totalPages = Math.ceil(totalCount / LIMIT);
+
+        if (rows.length < LIMIT) {
+          state.hasMore = false;
+        }
       })
+
       .addCase(fetchPolls.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload;
       })
 
       .addCase(saveVote.fulfilled, (state, action) => {
-        const { pollId, optionId } = action.payload;
-        state.votes[pollId] = optionId;
+        const { pollId, optionId, userId } = action.payload;
+        if (!state.votes[pollId]) {
+          state.votes[pollId] = {};
+        }
+        state.votes[pollId][userId] = optionId;
+        const pollIndex = state.polls.findIndex((poll) => poll.id === pollId);
+        if (pollIndex !== -1) {
+          const optionIndex = state.polls[pollIndex].optionList.findIndex(
+            (option) => option.id === optionId
+          );
+          if (optionIndex !== -1) {
+            state.polls[pollIndex].optionList[optionIndex].voteCount.push(
+              userId
+            );
+          }
+        }
         localStorage.setItem("votes", JSON.stringify(state.votes));
       })
       .addCase(saveVote.rejected, (_, action) => {

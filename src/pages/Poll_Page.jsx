@@ -25,10 +25,21 @@ const Poll_Page = () => {
     dispatch(fetchPolls(PAGE_NO));
   }, [dispatch]);
 
+  const handleLoadMore = () => {
+    if (!isLoading && hasMore) {
+      dispatch(fetchPolls(currentPage + 1));
+    }
+  };
+
   useEffect(() => {
     if (user) {
-      const storedVotes = JSON.parse(localStorage.getItem("votes")) || {};
+      const storedVotes =
+        JSON.parse(localStorage.getItem(`votes_${user.id}`)) || {};
       setVotedPolls(storedVotes);
+
+      const storedSelectedOptions =
+        JSON.parse(localStorage.getItem(`selectedOptions_${user.id}`)) || {};
+      setSelectedOptions(storedSelectedOptions);
     }
   }, [user]);
 
@@ -38,31 +49,42 @@ const Poll_Page = () => {
       [pollId]: optionId,
     };
     setSelectedOptions(updatedSelectedOptions);
-    localStorage.setItem(
-      "selectedOptions",
-      JSON.stringify(updatedSelectedOptions)
-    );
-  };
-
-  const handleLoadMore = () => {
-    if (!isLoading && hasMore) {
-      dispatch(fetchPolls(currentPage + 1));
-    }
   };
 
   const handleSubmit = async (pollId) => {
     const selectedOption = selectedOptions[pollId];
     if (!selectedOption) return;
 
+    const updatedSelectedOptions = {
+      ...selectedOptions,
+      [pollId]: selectedOption,
+    };
+    localStorage.setItem(
+      `selectedOptions_${user.id}`,
+      JSON.stringify(updatedSelectedOptions)
+    );
+
     try {
-      await dispatch(saveVote({ pollId, optionId: selectedOption })).unwrap();
+      await dispatch(
+        saveVote({
+          pollId,
+          optionId: selectedOption,
+          userId: user.id,
+        })
+      ).unwrap();
+
       const updatedVotedPolls = {
         ...votedPolls,
-        [pollId]: { [user.id]: selectedOption },
+        [pollId]: {
+          ...votedPolls[pollId],
+          [user.id]: selectedOption,
+        },
       };
       setVotedPolls(updatedVotedPolls);
-      localStorage.setItem("votes", JSON.stringify(updatedVotedPolls));
-      dispatch(fetchPolls(currentPage));
+      localStorage.setItem(
+        `votes_${user.id}`,
+        JSON.stringify(updatedVotedPolls)
+      );
     } catch (error) {
       console.error("Error submitting vote:", error);
     }
@@ -71,11 +93,6 @@ const Poll_Page = () => {
   const handleViewResults = (pollId) => {
     const poll = polls.find((poll) => poll.id === pollId);
     if (poll) {
-      const pollVotes = votedPolls[pollId] || {};
-      console.log("Poll ID:", pollId);
-      console.log("All Votes:", votedPolls);
-      console.log("Poll Votes:", pollVotes);
-
       setCurrentPollResults({
         title: poll.title,
         options: poll.optionList,
@@ -157,7 +174,12 @@ const Poll_Page = () => {
                   <div className="flex justify-center items-center mt-auto">
                     <button
                       onClick={() => handleSubmit(poll.id)}
-                      className="bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 mt-2 cursor-pointer"
+                      className={`py-2 px-4 rounded-lg mt-2 text-white 
+                        ${
+                          votedPolls[poll.id]?.[user.id]
+                            ? "bg-blue-200 cursor-not-allowed"
+                            : "bg-blue-500 hover:bg-blue-600"
+                        }`}
                       disabled={votedPolls[poll.id]?.[user.id]}
                     >
                       {votedPolls[poll.id]?.[user.id] ? "Submitted" : "Submit"}
@@ -169,8 +191,8 @@ const Poll_Page = () => {
           ) : (
             <p className="text-center text-gray-600">No polls available.</p>
           )}
-          {hasMore && (
-            <div className="flex justify-center mt-6">
+          <div className="flex justify-center mt-6">
+            {hasMore ? (
               <button
                 onClick={handleLoadMore}
                 disabled={isLoading}
@@ -182,8 +204,10 @@ const Poll_Page = () => {
               >
                 {isLoading ? "Loading..." : "Load More"}
               </button>
-            </div>
-          )}
+            ) : (
+              <p className="text-gray-500">No more polls to load.</p>
+            )}
+          </div>
         </div>
       )}
       <PollResultsModal
