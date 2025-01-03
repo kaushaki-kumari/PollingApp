@@ -83,7 +83,7 @@ const PollResultsModal = ({ isOpen, onClose, pollData }) => {
       onRequestClose={onClose}
       contentLabel="Poll Results"
       ariaHideApp={false}
-      className="bg-white rounded-lg shadow-lg max-w-2xl mx-auto p-6"
+      className="bg-white rounded-lg shadow-lg max-w-2xl mx-auto p-6 w-full"
       overlayClassName="fixed inset-0  bg-opacity-50 flex items-center justify-center"
     >
       <div className="flex flex-col h-[500px]">

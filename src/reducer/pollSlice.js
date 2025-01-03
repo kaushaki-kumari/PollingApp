@@ -5,12 +5,16 @@ import { handleError } from "../utils/errorHandler";
 
 export const fetchPolls = createAsyncThunk(
   "polls/fetchPolls",
-  async (_, { rejectWithValue }) => {
+  async (pageNo = PAGE_NO, { rejectWithValue }) => {
     try {
       const response = await axiosInstance.get(
-        `/poll/list/${PAGE_NO}?limit=${LIMIT}`
+        `/poll/list/${pageNo}?limit=${LIMIT}`
       );
-      return response.data;
+      return {
+        rows: response.data.rows,
+        totalCount: response.data.count,
+        currentPage: pageNo
+      };
     } catch (err) {
       const errorMessage = handleError(err);
       return rejectWithValue(errorMessage);
@@ -41,6 +45,9 @@ const pollSlice = createSlice({
     isLoading: false,
     error: null,
     votes: JSON.parse(localStorage.getItem("votes")) || {},
+    currentPage: PAGE_NO,
+    totalPages: 1,
+    hasMore: true
   },
   reducers: {},
   extraReducers: (builder) => {
@@ -51,7 +58,16 @@ const pollSlice = createSlice({
       })
       .addCase(fetchPolls.fulfilled, (state, action) => {
         state.isLoading = false;
-        state.polls = action.payload.rows || [];
+        if (action.payload.currentPage === PAGE_NO) {
+          state.polls = action.payload.rows;
+        } else {
+          state.polls = [...state.polls, ...action.payload.rows];
+        }
+        state.currentPage = action.payload.currentPage;
+        state.totalPages = Math.ceil(action.payload.totalCount / LIMIT);
+        const totalItems = action.payload.totalCount;
+        const currentItems = state.polls.length;
+        state.hasMore = currentItems < totalItems;
       })
       .addCase(fetchPolls.rejected, (state, action) => {
         state.isLoading = false;
@@ -63,7 +79,7 @@ const pollSlice = createSlice({
         state.votes[pollId] = optionId;
         localStorage.setItem("votes", JSON.stringify(state.votes));
       })
-      .addCase(saveVote.rejected, (state, action) => {
+      .addCase(saveVote.rejected, (_, action) => {
         console.error(action.payload);
       });
   },

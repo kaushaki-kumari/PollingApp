@@ -2,13 +2,15 @@ import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchPolls, saveVote } from "../reducer/pollSlice";
 import { FaRegEdit, FaChartBar } from "react-icons/fa";
-import { ROLE_ADMIN } from "../utils/constant";
+import { ROLE_ADMIN, PAGE_NO } from "../utils/constant";
 import Skeleton from "../components/Skeleton";
 import PollResultsModal from "../components/PollResultsModal";
 
 const Poll_Page = () => {
   const dispatch = useDispatch();
-  const { polls, isLoading, error } = useSelector((state) => state.polls);
+  const { polls, isLoading, error, currentPage, hasMore } = useSelector(
+    (state) => state.polls
+  );
   const { user } = useSelector((state) => state.auth);
   const [selectedOptions, setSelectedOptions] = useState(
     JSON.parse(localStorage.getItem("selectedOptions")) || {}
@@ -20,7 +22,7 @@ const Poll_Page = () => {
   const [currentPollResults, setCurrentPollResults] = useState(null);
 
   useEffect(() => {
-    dispatch(fetchPolls());
+    dispatch(fetchPolls(PAGE_NO));
   }, [dispatch]);
 
   useEffect(() => {
@@ -42,6 +44,12 @@ const Poll_Page = () => {
     );
   };
 
+  const handleLoadMore = () => {
+    if (!isLoading && hasMore) {
+      dispatch(fetchPolls(currentPage + 1));
+    }
+  };
+
   const handleSubmit = async (pollId) => {
     const selectedOption = selectedOptions[pollId];
     if (!selectedOption) return;
@@ -54,7 +62,7 @@ const Poll_Page = () => {
       };
       setVotedPolls(updatedVotedPolls);
       localStorage.setItem("votes", JSON.stringify(updatedVotedPolls));
-      dispatch(fetchPolls());
+      dispatch(fetchPolls(currentPage));
     } catch (error) {
       console.error("Error submitting vote:", error);
     }
@@ -82,7 +90,7 @@ const Poll_Page = () => {
       {isLoading && (
         <div className="m-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {[...Array(polls?.length || 11)].map((_, index) => (
+            {[...Array(9)].map((_, index) => (
               <Skeleton key={index} />
             ))}
           </div>
@@ -161,14 +169,23 @@ const Poll_Page = () => {
           ) : (
             <p className="text-center text-gray-600">No polls available.</p>
           )}
-          <div className="flex justify-center mt-4">
-            <button className="bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600">
-              Load More
-            </button>
-          </div>
+          {hasMore && (
+            <div className="flex justify-center mt-6">
+              <button
+                onClick={handleLoadMore}
+                disabled={isLoading}
+                className={`py-2 px-4 rounded-lg ${
+                  isLoading
+                    ? "bg-gray-400 cursor-not-allowed"
+                    : "bg-blue-500 hover:bg-blue-600"
+                } text-white`}
+              >
+                {isLoading ? "Loading..." : "Load More"}
+              </button>
+            </div>
+          )}
         </div>
       )}
-
       <PollResultsModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
