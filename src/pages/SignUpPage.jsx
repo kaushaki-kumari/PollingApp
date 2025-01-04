@@ -109,7 +109,7 @@ const SignUpPage = () => {
   };
 
   useEffect(() => {
-    console.log("Redux error state:", error.general);
+    console.log("Redux error state:", error);
   }, [error]);
 
   return (
