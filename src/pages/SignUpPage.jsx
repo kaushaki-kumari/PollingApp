@@ -88,6 +88,7 @@ const SignUpPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setErrors({})
     console.log("handleSubmit called");
     if (!validateForm()) return;
 

@@ -1,25 +1,29 @@
-import React, { useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { useNavigate, Link } from 'react-router-dom';
+import React, { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useNavigate, Link } from "react-router-dom";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
-import { login } from '../reducer/authSlice';
-import { handleError } from '../utils/errorHandler';
-import { validateEmail } from '../utils/validateEmail';
+import { login } from "../reducer/authSlice";
+import { handleError } from "../utils/errorHandler";
+import { validateEmail } from "../utils/validateEmail";
+import { resetError } from "../reducer/authSlice";
 
 const LoginPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
-    email: '',
-    password: '',
+    email: "",
+    password: "",
   });
   const [errors, setErrors] = useState({
-    emailError: '',
-    passwordError: '',
+    emailError: "",
+    passwordError: "",
   });
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { isLoading, error, } = useSelector((state) => state.auth);
+  const { isLoading, error } = useSelector((state) => state.auth);
+  useEffect(() => {
+    dispatch(resetError());
+  }, [dispatch]);
 
   const validateForm = () => {
     const newErrors = {};
@@ -30,7 +34,7 @@ const LoginPage = () => {
     }
 
     if (!formData.password) {
-      newErrors.passwordError = 'Password is required';
+      newErrors.passwordError = "Password is required";
     }
 
     setErrors(newErrors);
@@ -45,7 +49,7 @@ const LoginPage = () => {
     dispatch(login(formData))
       .unwrap()
       .then(() => {
-        navigate('/polls');
+        navigate("/polls");
       })
       .catch((err) => {
         const errorMessage = handleError(err);
@@ -55,19 +59,19 @@ const LoginPage = () => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setErrors((prevState) => ({ ...prevState, formError: '' }));
+    setErrors((prevState) => ({ ...prevState, formError: "" }));
     setFormData((prevState) => ({
       ...prevState,
       [name]: value,
     }));
 
     const newErrors = { ...errors };
-    if (name === 'email') {
+    if (name === "email") {
       newErrors.emailError = validateEmail(value);
     }
 
-    if (name === 'password') {
-      newErrors.passwordError = value ? '' : 'Password is required';
+    if (name === "password") {
+      newErrors.passwordError = value ? "" : "Password is required";
     }
 
     setErrors(newErrors);
@@ -80,7 +84,10 @@ const LoginPage = () => {
         <form className="mt-8 space-y-3" onSubmit={handleSubmit}>
           <div className="rounded-md shadow-sm space-y-4">
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+              <label
+                htmlFor="email"
+                className="block text-sm font-medium text-gray-700"
+              >
                 Email
               </label>
               <input
@@ -88,38 +95,55 @@ const LoginPage = () => {
                 name="email"
                 type="text"
                 disabled={isLoading}
-                className={`mt-1 block w-full px-3 py-2 border rounded-md disabled:bg-gray-100 ${errors.emailError ? 'border-red-500' : 'border-gray-300'}`}
+                className={`mt-1 block w-full px-3 py-2 border rounded-md disabled:bg-gray-100 ${
+                  errors.emailError ? "border-red-500" : "border-gray-300"
+                }`}
                 value={formData.email}
                 onChange={handleInputChange}
                 onBlur={validateForm}
               />
-              {errors.emailError && <p className="text-red-500 text-sm">{errors.emailError}</p>}
+              {errors.emailError && (
+                <p className="text-red-500 text-sm">{errors.emailError}</p>
+              )}
             </div>
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+              <label
+                htmlFor="password"
+                className="block text-sm font-medium text-gray-700"
+              >
                 Password
               </label>
               <div className="relative">
                 <input
                   id="password"
                   name="password"
-                  type={showPassword ? 'text' : 'password'}
+                  type={showPassword ? "text" : "password"}
                   disabled={isLoading}
-                  className={`mt-1 block w-full px-3 py-2 border rounded-md disabled:bg-gray-100 ${errors.passwordError ? 'border-red-500' : 'border-gray-300'}`}
+                  className={`mt-1 block w-full px-3 py-2 border rounded-md disabled:bg-gray-100 ${
+                    errors.passwordError ? "border-red-500" : "border-gray-300"
+                  }`}
                   value={formData.password}
-                  onChange={handleInputChange} />
+                  onChange={handleInputChange}
+                />
                 <button
                   type="button"
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                  onClick={() => setShowPassword(!showPassword)}>
-                  {showPassword ? <FaEye size={20} /> : <FaEyeSlash size={20} />}
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  {showPassword ? (
+                    <FaEye size={20} />
+                  ) : (
+                    <FaEyeSlash size={20} />
+                  )}
                 </button>
               </div>
-              {errors.passwordError && <p className="text-red-500 text-sm">{errors.passwordError}</p>}
+              {errors.passwordError && (
+                <p className="text-red-500 text-sm">{errors.passwordError}</p>
+              )}
             </div>
           </div>
 
-          {(!errors.emailError && !errors.passwordError) && errors.formError && (
+          {!errors.emailError && !errors.passwordError && errors.formError && (
             <p className="text-red-500 text-sm">{errors.formError}</p>
           )}
 
@@ -139,8 +163,16 @@ const LoginPage = () => {
                     className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
                     xmlns="http://www.w3.org/2000/svg"
                     fill="none"
-                    viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    ></circle>
                     <path
                       className="opacity-75"
                       fill="currentColor"
@@ -150,12 +182,15 @@ const LoginPage = () => {
                   Logging in...
                 </>
               ) : (
-                'Login'
+                "Login"
               )}
             </button>
             <p className="text-center text-sm text-gray-600">
-              Don't have an account?{' '}
-              <Link to="/signUp" className="font-medium text-blue-600 hover:text-blue-500">
+              Don't have an account?{" "}
+              <Link
+                to="/signUp"
+                className="font-medium text-blue-600 hover:text-blue-500"
+              >
                 Create an account
               </Link>
             </p>
@@ -164,7 +199,6 @@ const LoginPage = () => {
       </div>
     </div>
   );
-
 };
 
 export default LoginPage;

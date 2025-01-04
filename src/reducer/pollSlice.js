@@ -37,6 +37,19 @@ export const saveVote = createAsyncThunk(
   }
 );
 
+export const deletePoll = createAsyncThunk(
+  "polls/deletePoll",
+  async (pollId, { rejectWithValue }) => {
+    try {
+      await axiosInstance.delete(`/poll/${pollId}`);
+      return pollId;
+    } catch (err) {
+      const errorMessage = handleError(err);
+      return rejectWithValue(errorMessage);
+    }
+  }
+);
+
 const pollSlice = createSlice({
   name: "polls",
   initialState: {
@@ -88,6 +101,13 @@ const pollSlice = createSlice({
         }
       })
       .addCase(saveVote.rejected, (_, action) => {
+        console.error(action.payload);
+      })
+      .addCase(deletePoll.fulfilled, (state, action) => {
+        const pollId = action.payload;
+        state.polls = state.polls.filter((poll) => poll.id !== pollId);
+      })
+      .addCase(deletePoll.rejected, (_, action) => {
         console.error(action.payload);
       });
   },

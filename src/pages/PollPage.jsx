@@ -6,6 +6,8 @@ import { MdDelete } from "react-icons/md";
 import { ROLE_ADMIN } from "../utils/constant";
 import Skeleton from "../components/Skeleton";
 import PollResultsModal from "../components/PollResultsModal";
+import DeletePoll from "../components/DeletePoll";
+import { deletePoll } from "../reducer/pollSlice";
 
 const PollPage = () => {
   const dispatch = useDispatch();
@@ -21,7 +23,9 @@ const PollPage = () => {
   );
   const [isPollResultsModalOpen, setIsPollResultsModalOpen] = useState(false);
   const [currentPollResults, setCurrentPollResults] = useState(null);
-  const [allPolls, setAllPolls] = useState([]); 
+  const [allPolls, setAllPolls] = useState([]);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [pollToDelete, setPollToDelete] = useState(null);
   const isInitialLoad = useRef(true);
 
   useEffect(() => {
@@ -33,13 +37,13 @@ const PollPage = () => {
 
   useEffect(() => {
     if (polls) {
-      setAllPolls(prevPolls => {
+      setAllPolls((prevPolls) => {
         if (currentPage === 1) {
           return polls;
         }
         const uniquePolls = [...prevPolls];
-        polls.forEach(newPoll => {
-          if (!uniquePolls.some(poll => poll.id === newPoll.id)) {
+        polls.forEach((newPoll) => {
+          if (!uniquePolls.some((poll) => poll.id === newPoll.id)) {
             uniquePolls.push(newPoll);
           }
         });
@@ -54,24 +58,12 @@ const PollPage = () => {
     }
   };
 
-  useEffect(() => {
-    if (user) {
-      const storedSelectedOptions =
-        JSON.parse(localStorage.getItem(`selectedOptions_${user.id}`)) || {};
-      setSelectedOptions(storedSelectedOptions);
-    }
-  }, [user]);
-
   const handleOptionSelect = (pollId, optionId) => {
     const updatedSelectedOptions = {
       ...selectedOptions,
       [pollId]: optionId,
     };
     setSelectedOptions(updatedSelectedOptions);
-    localStorage.setItem(
-      `selectedOptions_${user.id}`,
-      JSON.stringify(updatedSelectedOptions)
-    );
   };
 
   const handleSubmit = async (pollId) => {
@@ -97,6 +89,14 @@ const PollPage = () => {
         `votes_${user.id}`,
         JSON.stringify(updatedVotedPolls)
       );
+      const updatedSelectedOptions = {
+        ...selectedOptions,
+      };
+      setSelectedOptions(updatedSelectedOptions);
+      localStorage.setItem(
+        `selectedOptions_${user.id}`,
+        JSON.stringify(updatedSelectedOptions)
+      );
     } catch (error) {
       console.error("Error submitting vote:", error);
     }
@@ -110,6 +110,20 @@ const PollPage = () => {
         options: poll.optionList,
       });
       setIsPollResultsModalOpen(true);
+    }
+  };
+
+  const handleDeletePoll = async () => {
+    if (!pollToDelete) return;
+    try {
+      await dispatch(deletePoll(pollToDelete.id)).unwrap();
+      setAllPolls((prevPolls) =>
+        prevPolls.filter((poll) => poll.id !== pollToDelete.id)
+      );
+      setPollToDelete(null);
+      setIsDeleteModalOpen(false);
+    } catch (error) {
+      console.error("Error deleting poll:", error);
     }
   };
 
@@ -141,7 +155,13 @@ const PollPage = () => {
                       className="cursor-pointer w-8 h-8"
                       onClick={() => handleViewResults(poll.id)}
                     />
-                    <MdDelete className="w-8 h-8" />
+                    <MdDelete
+                      className="w-8 h-8 cursor-pointer"
+                      onClick={() => {
+                        setPollToDelete(poll);
+                        setIsDeleteModalOpen(true);
+                      }}
+                    />
                   </div>
                 )}
                 <h2 className="text-lg font-semibold flex justify-between items-center">
@@ -225,6 +245,12 @@ const PollPage = () => {
         isOpen={isPollResultsModalOpen}
         onClose={() => setIsPollResultsModalOpen(false)}
         pollData={currentPollResults}
+      />
+      <DeletePoll
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        onConfirm={handleDeletePoll}
+        pollTitle={pollToDelete?.title}
       />
     </div>
   );
