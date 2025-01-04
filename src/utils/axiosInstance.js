@@ -14,18 +14,9 @@ axiosInstance.interceptors.request.use(
     return config;
   },
   (error) => {
-    return Promise.reject(error);
-  }
-);
-
-axiosInstance.interceptors.response.use(
-  (response) => {
-    return response;
-  },
-  (error) => {
     if (error.response && error.response.status === 403) {
       localStorage.removeItem("user");
-      window.location.href = "/login"; 
+      window.location.href = "/login";
     }
     return Promise.reject(error);
   }
