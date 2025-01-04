@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchPolls, saveVote } from "../reducer/pollSlice";
 import { FaRegEdit, FaChartBar } from "react-icons/fa";
@@ -9,7 +9,7 @@ import PollResultsModal from "../components/PollResultsModal";
 
 const PollPage = () => {
   const dispatch = useDispatch();
-  const { polls, isLoading, error, currentPage, hasMore } = useSelector(
+  const { polls, isLoading, error, hasMore } = useSelector(
     (state) => state.polls
   );
   const { user } = useSelector((state) => state.auth);
@@ -21,14 +21,18 @@ const PollPage = () => {
   );
   const [isPollResultsModalOpen, setIsPollResultsModalOpen] = useState(false);
   const [currentPollResults, setCurrentPollResults] = useState(null);
+  const isInitialLoad = useRef(true);
 
   useEffect(() => {
-    dispatch(fetchPolls());
+    if (isInitialLoad.current) {
+      dispatch(fetchPolls());
+      isInitialLoad.current = false;
+    }
   }, [dispatch]);
 
-  const handleLoadMore = () => {
+  const handleLoadMore = (e) => { 
     if (!isLoading && hasMore) {
-      dispatch(fetchPolls(currentPage + 1));
+      dispatch(fetchPolls());
     }
   };
 

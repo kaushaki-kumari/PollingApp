@@ -4,7 +4,6 @@ import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { validateEmail } from "../utils/validateEmail";
 import { fetchRoles, signup } from "../reducer/authSlice";
 import { useDispatch, useSelector } from "react-redux";
-import { handleError } from "../utils/errorHandler";
 
 const SignUpPage = () => {
   const [formData, setFormData] = useState({
@@ -17,6 +16,7 @@ const SignUpPage = () => {
   });
 
   const [errors, setErrors] = useState({});
+  const error = useSelector((state) => state.auth.error);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [showConfirmation, setShowConfirmation] = useState(false);
@@ -88,6 +88,7 @@ const SignUpPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    console.log("handleSubmit called");
     if (!validateForm()) return;
 
     const formDataToSend = {
@@ -98,14 +99,18 @@ const SignUpPage = () => {
     try {
       await dispatch(signup(formDataToSend)).unwrap();
       setShowConfirmation(true);
-    } catch (error) {
-      const errorMessage = handleError(error);
+    } catch (err) {
+      console.log("Error caught:", err);
       setErrors((prevErrors) => ({
         ...prevErrors,
-        general: errorMessage,
+        general: error,
       }));
     }
   };
+
+  useEffect(() => {
+    console.log("Redux error state:", error.general);
+  }, [error]);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
@@ -274,10 +279,8 @@ const SignUpPage = () => {
               Sign Up
             </button>
 
-            {errors.general && (
-              <p className="text-red-500 text-sm text-center mt-4">
-                {errors.general}
-              </p>
+            {error && (
+              <p className="text-red-500 text-sm text-center mt-4">{error}</p>
             )}
 
             <div className="text-center mt-4">
@@ -296,7 +299,7 @@ const SignUpPage = () => {
       ) : (
         <div className="max-w-md w-full space-y-6 p-6 bg-white rounded-xl shadow-lg text-center">
           <h2 className="text-2xl font-bold text-blue-600">
-            Sign Up SuccessfullY!!
+            Account Successfully Created! Welcome to the Poll Management System.
           </h2>
           <button
             onClick={() => navigate("/login")}

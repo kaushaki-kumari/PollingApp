@@ -25,14 +25,16 @@ const PollResultsModal = ({ isOpen, onClose, pollData }) => {
   if (!pollData || !pollData.options) return null;
 
   const truncateText = (text, maxLength = 12) => {
-    return text.length > maxLength ? text.substring(0, maxLength) + "..." : text;
+    return text.length > maxLength
+      ? text.substring(0, maxLength) + "..."
+      : text;
   };
 
-  const voteCounts = pollData.options.map(option => option.voteCount.length);
+  const voteCounts = pollData.options.map((option) => option.voteCount.length);
   console.log(voteCounts);
 
   const data = {
-    labels: pollData.options.map(option => truncateText(option.optionTitle)),
+    labels: pollData.options.map((option) => truncateText(option.optionTitle)),
     datasets: [
       {
         label: "Number of Votes",
@@ -64,7 +66,8 @@ const PollResultsModal = ({ isOpen, onClose, pollData }) => {
           label: (context) => {
             const value = context.raw;
             const total = voteCounts.reduce((a, b) => a + b, 0);
-            const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
+            const percentage =
+              total > 0 ? ((value / total) * 100).toFixed(1) : 0;
             return `Votes: ${value} (${percentage}%)`;
           },
         },
@@ -87,7 +90,7 @@ const PollResultsModal = ({ isOpen, onClose, pollData }) => {
       contentLabel="Poll Results"
       ariaHideApp={false}
       className="bg-white w-72 p-1 rounded-lg shadow-lg max-w-2xl mx-auto md:p-6 md:w-full"
-      overlayClassName="fixed inset-0 bg-opacity-50 flex items-center justify-center"
+      overlayClassName="fixed inset-0 bg-black bg-opacity-30 shadow-xl flex items-center justify-center"
     >
       <div className="flex flex-col h-[500px]">
         <h2 className="text-xl font-bold mb-4">Poll Results</h2>

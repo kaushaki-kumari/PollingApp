@@ -62,17 +62,14 @@ export const signup = createAsyncThunk(
       const contentType = response.headers["content-type"];
       if (!contentType || !contentType.includes("application/json")) {
         throw new Error(
-          "Email is already registered. Please use a different email.."
+          "Email is already registered. Please use a different email."
         );
       }
-
       toast.success("Signup successful! Please log in.");
       return response.data.user;
     } catch (err) {
       const errorMessage =
-        err.name === "TypeError" && err.message === "Failed to fetch"
-          ? "Cannot connect to the server. Please check your connection or try again later."
-          : err.message || "An unexpected error occurred.";
+        err.response?.data || err.message || "An unexpected error occurred.";
       return rejectWithValue(errorMessage);
     }
   }
@@ -133,7 +130,7 @@ const authSlice = createSlice({
         state.user = action.payload;
       })
       .addCase(signup.rejected, (state, action) => {
-        state.isLoading = false;
+        console.log("Signup error:", action.payload);
         state.error = action.payload;
       });
   },
