@@ -83,14 +83,10 @@ const pollSlice = createSlice({
       .addCase(fetchPolls.fulfilled, (state, action) => {
         state.isLoading = false;
         const { rows, currentPage } = action.payload;
-        const newPolls = rows.filter(
-          (newPoll) =>
-            !state.polls.some((existingPoll) => existingPoll.id === newPoll.id)
-        );
         if (rows.length < POLL_LIMIT) {
           state.hasMore = false;
         }
-        state.polls = [...state.polls, ...newPolls];
+        state.polls = [...state.polls, ...rows];
         state.currentPage = currentPage;
       })
 
