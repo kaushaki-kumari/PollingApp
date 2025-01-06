@@ -111,9 +111,9 @@ const PollPage = () => {
       <div className="m-4">
         {polls && polls.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {polls.map((poll) => (
+            {polls.map((poll,index) => (
               <div
-                key={poll.id}
+              key={`${poll.id}-${index}`}
                 className="p-4 border rounded-lg shadow-sm transition flex flex-col min-h-full"
               >
                 {user?.roleId === ROLE_ADMIN && (

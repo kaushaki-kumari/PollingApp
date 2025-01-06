@@ -35,6 +35,19 @@ export const fetchPollDetails = createAsyncThunk(
   }
 );
 
+
+export const addPoll = createAsyncThunk(
+  "polls/addPoll",
+  async ({ title, options }, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.post("/poll/add", { title, options });
+      return response.data;
+    } catch (err) {
+      return rejectWithValue(handleError(err));
+    }
+  }
+);
+
 export const saveVote = createAsyncThunk(
   "polls/saveVote",
   async ({ pollId, optionId, userId }, { rejectWithValue }) => {
@@ -111,6 +124,21 @@ const pollSlice = createSlice({
       })
       .addCase(deletePoll.rejected, (_, action) => {
         console.error(action.payload);
+      })
+      .addCase(addPoll.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(addPoll.fulfilled, (state, action) => {
+        state.isLoading = false;
+        const newPoll = action.payload; // Ensure this includes `options`
+        if (newPoll.options && Array.isArray(newPoll.options)) {
+          state.polls.push(newPoll);
+        }
+      })      
+      .addCase(addPoll.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload;
       });
   },
 });
