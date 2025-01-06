@@ -1,19 +1,13 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { handleError } from "../utils/errorHandler";
 import toast from "react-hot-toast";
-import axios from "axios";
+import axiosInstance from "../utils/axiosInstance";
 
-const baseUrl = import.meta.env.VITE_BASE_URL;
 export const login = createAsyncThunk(
   "auth/login",
   async (formData, { rejectWithValue }) => {
     try {
-      const response = await axios.post(`${baseUrl}/user/login`, formData, {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-
+      const response = await axiosInstance.post("/user/login", formData);
       localStorage.setItem(
         "user",
         JSON.stringify({
@@ -40,7 +34,7 @@ export const fetchRoles = createAsyncThunk(
   "auth/fetchRoles",
   async (_, { rejectWithValue }) => {
     try {
-      const response = await axios.get(`${baseUrl}/role/list`);
+      const response = await axiosInstance.get("/role/list");
       return response.data;
     } catch (err) {
       const errorMessage = handleError(err);
@@ -53,11 +47,7 @@ export const signup = createAsyncThunk(
   "auth/signup",
   async (formData, { rejectWithValue }) => {
     try {
-      const response = await axios.post(`${baseUrl}/user/register`, formData, {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+      const response = await axiosInstance.post("/user/register", formData);
 
       const contentType = response.headers["content-type"];
       if (!contentType || !contentType.includes("application/json")) {
@@ -89,7 +79,7 @@ const authSlice = createSlice({
   initialState,
   reducers: {
     resetError: (state) => {
-      state.error = null; // Reset error state
+      state.error = null;
     },
   },
   extraReducers: (builder) => {

@@ -22,6 +22,19 @@ export const fetchPolls = createAsyncThunk(
   }
 );
 
+export const fetchPollDetails = createAsyncThunk(
+  "polls/fetchPollDetails",
+  async (pollId, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.get(`/poll/${pollId}`);
+      return response.data;
+    } catch (err) {
+      const errorMessage = handleError(err);
+      return rejectWithValue(errorMessage);
+    }
+  }
+);
+
 export const saveVote = createAsyncThunk(
   "polls/saveVote",
   async ({ pollId, optionId, userId }, { rejectWithValue }) => {
@@ -85,18 +98,22 @@ const pollSlice = createSlice({
         state.isLoading = false;
         state.error = action.payload;
       })
+      .addCase(fetchPollDetails.fulfilled, (state, action) => {
+        state.currentPollDetails = action.payload;
+      })
+      .addCase(fetchPollDetails.rejected, (state, action) => {
+        state.error = action.payload;
+      })
 
       .addCase(saveVote.fulfilled, (state, action) => {
-        const { pollId, optionId, userId } = action.payload;
+        const { pollId, optionId } = action.payload;
         const pollIndex = state.polls.findIndex((poll) => poll.id === pollId);
         if (pollIndex !== -1) {
           const optionIndex = state.polls[pollIndex].optionList.findIndex(
             (option) => option.id === optionId
           );
           if (optionIndex !== -1) {
-            state.polls[pollIndex].optionList[optionIndex].voteCount.push(
-              userId
-            );
+            state.polls[pollIndex].optionList[optionIndex].votes += 1;
           }
         }
       })
