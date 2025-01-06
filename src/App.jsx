@@ -1,25 +1,60 @@
-import React from 'react';
-import { HashRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { Provider } from 'react-redux';
-import { Toaster } from 'react-hot-toast';
-import { store } from './app/store';
-import LoginPage from './pages/LoginPage.jsx';
-import Poll_Page from './pages/Poll_Page.jsx';
-import SignUpPage from './pages/SignUpPage.jsx';
+import React from "react";
+import {
+  HashRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+  Outlet,
+} from "react-router-dom";
+
+import LoginPage from "./pages/LoginPage.jsx";
+import PollPage from "./pages/PollPage.jsx";
+import SignUpPage from "./pages/SignUpPage.jsx";
+import AddPollPage from "./pages/AddPollPage.jsx";
+import CreateUserPage from "./pages/CreateUserPage.jsx";
+import UsersPage from "./pages/UsersPage.jsx";
+import RouteWrapper from "./routes/CustomRoute.jsx";
 
 const App = () => {
   return (
-    <Provider store={store}>
-      <Router>
-        <Toaster position="top-right" />
-        <Routes>
+    <Router>
+      <Routes>
+        <Route
+          element={
+            <RouteWrapper type="public">
+              <Outlet />
+            </RouteWrapper>
+          }
+        >
           <Route path="/login" element={<LoginPage />} />
-          <Route path="/" element={<Navigate to="/login" />} />
-          <Route path="/pollPage" element={<Poll_Page />} />  
-          <Route path="/signUp" element={<SignUpPage />} />
-        </Routes>
-      </Router>
-    </Provider>
+          <Route path="/signup" element={<SignUpPage />} />
+        </Route>
+
+        <Route
+          element={
+            <RouteWrapper type="protected">
+              <Outlet />
+            </RouteWrapper>
+          }
+        >
+          <Route path="/polls" element={<PollPage />} />
+
+          <Route
+            element={
+              <RouteWrapper type="admin">
+                <Outlet />
+              </RouteWrapper>
+            }
+          >
+            <Route path="/addPoll" element={<AddPollPage />} />
+            <Route path="/createUser" element={<CreateUserPage />} />
+            <Route path="/listUsers" element={<UsersPage />} />
+          </Route>
+        </Route>
+
+        <Route path="*" element={<Navigate to="/login" replace />} />
+      </Routes>
+    </Router>
   );
 };
 

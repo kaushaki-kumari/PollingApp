@@ -1,29 +1,22 @@
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { handleError } from '../utils/errorHandler';
-import toast from 'react-hot-toast';
-const baseUrl = import.meta.env.VITE_BASE_URL;
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import { handleError } from "../utils/errorHandler";
+import toast from "react-hot-toast";
+import axiosInstance from "../utils/axiosInstance";
 
 export const login = createAsyncThunk(
-  'auth/login',
+  "auth/login",
   async (formData, { rejectWithValue }) => {
     try {
-      const response = await fetch(`${baseUrl}/user/login`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
-      });
-      
-      if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.message || 'Login failed');
-      }
-      
-      const data = await response.json();
-      localStorage.setItem('user', JSON.stringify(data.user));
-      toast.success('Login successful!');
-      return data.user;
+      const response = await axiosInstance.post("/user/login", formData);
+      localStorage.setItem(
+        "user",
+        JSON.stringify({
+          ...response.data.user,
+          token: response.data.token,
+        })
+      );
+      toast.success("Login successful!");
+      return { ...response.data.user, token: response.data.token };
     } catch (err) {
       const errorMessage = handleError(err);
       toast.error(errorMessage);
@@ -32,21 +25,17 @@ export const login = createAsyncThunk(
   }
 );
 
-export const logout = createAsyncThunk('auth/logout', async () => {
-  localStorage.removeItem('user');
-  toast.success('Logged out successfully');
+export const logout = createAsyncThunk("auth/logout", async () => {
+  localStorage.removeItem("user");
+  toast.success("Logged out successfully");
 });
 
 export const fetchRoles = createAsyncThunk(
-  'auth/fetchRoles',
+  "auth/fetchRoles",
   async (_, { rejectWithValue }) => {
     try {
-      const response = await fetch(`${baseUrl}/role/list`);
-      if (!response.ok) {
-        throw new Error('Failed to fetch roles');
-      }
-      const data = await response.json();
-      return data; 
+      const response = await axiosInstance.get("/role/list");
+      return response.data;
     } catch (err) {
       const errorMessage = handleError(err);
       return rejectWithValue(errorMessage);
@@ -58,49 +47,41 @@ export const signup = createAsyncThunk(
   "auth/signup",
   async (formData, { rejectWithValue }) => {
     try {
-      const response = await fetch(`${baseUrl}/user/register`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData),
-      });
+      const response = await axiosInstance.post("/user/register", formData);
 
-      const contentType = response.headers.get("content-type");
+      const contentType = response.headers["content-type"];
       if (!contentType || !contentType.includes("application/json")) {
         throw new Error(
-          "Email is already registered. Please use a different email.."
+          "Email is already registered. Please use a different email."
         );
       }
-      const data = await response.json();
-      if (!response.ok) {
-        throw new Error(data.message || "Signup failed.");
-      }
       toast.success("Signup successful! Please log in.");
-      return data.user;
+      return response.data.user;
     } catch (err) {
       const errorMessage =
-        err.name === "TypeError" && err.message === "Failed to fetch"
-          ? "Cannot connect to the server. Please check your connection or try again later."
-          : err.message || "An unexpected error occurred.";
+        err.response?.data || err.message || "An unexpected error occurred.";
       return rejectWithValue(errorMessage);
     }
   }
 );
 
 const initialState = {
-  user: JSON.parse(localStorage.getItem('user')) || null,
+  user: JSON.parse(localStorage.getItem("user")) || null,
   isLoading: false,
   error: null,
-  isAuthenticated: !!localStorage.getItem('user'),
+  isAuthenticated: !!localStorage.getItem("user"),
   roles: [],
   rolesLoading: false,
 };
 
 const authSlice = createSlice({
-  name: 'auth',
+  name: "auth",
   initialState,
-  reducers: {},
+  reducers: {
+    resetError: (state) => {
+      state.error = null;
+    },
+  },
   extraReducers: (builder) => {
     builder
       .addCase(login.pending, (state) => {
@@ -143,10 +124,11 @@ const authSlice = createSlice({
         state.user = action.payload;
       })
       .addCase(signup.rejected, (state, action) => {
-        state.isLoading = false;
+        console.log("Signup error:", action.payload);
         state.error = action.payload;
       });
   },
 });
 
+export const { resetError } = authSlice.actions;
 export default authSlice.reducer;
