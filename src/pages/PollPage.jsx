@@ -1,14 +1,12 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchPolls, saveVote } from "../reducer/pollSlice";
+import { fetchPolls, saveVote, deletePoll } from "../reducer/pollSlice";
 import { FaRegEdit, FaChartBar } from "react-icons/fa";
 import { MdDelete } from "react-icons/md";
 import { ROLE_ADMIN } from "../utils/constant";
 import Skeleton from "../components/Skeleton";
 import PollResultsModal from "../components/PollResultsModal";
-import DeletePollModal from "../components/DeletePollModal";
-import { deletePoll } from "../reducer/pollSlice";
-import { fetchPollDetails } from "../reducer/pollSlice";
+import DeleteConfirmModal from "../components/DeleteConfirmModal";
 
 const PollPage = () => {
   const dispatch = useDispatch();
@@ -20,8 +18,7 @@ const PollPage = () => {
     JSON.parse(localStorage.getItem(`votes_${user?.id}`)) || {}
   );
   const [isPollResultsModalOpen, setIsPollResultsModalOpen] = useState(false);
-  const [currentPollResults, setCurrentPollResults] = useState(null);
-  const [allPolls, setAllPolls] = useState([]);
+  const [selectedPollId, setSelectedPollId] = useState(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [pollToDelete, setPollToDelete] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -33,29 +30,6 @@ const PollPage = () => {
       isInitialLoad.current = false;
     }
   }, [dispatch]);
-
-  useEffect(() => {
-    if (polls) {
-      setAllPolls((prevPolls) => {
-        if (currentPage === 1) {
-          return polls;
-        }
-        const uniquePolls = [...prevPolls];
-        polls.forEach((newPoll) => {
-          if (!uniquePolls.some((poll) => poll.id === newPoll.id)) {
-            uniquePolls.push(newPoll);
-          }
-        });
-        return uniquePolls;
-      });
-    }
-  }, [polls, currentPage]);
-
-  useEffect(() => {
-    if (user?.id) {
-      localStorage.setItem(`votes_${user.id}`, JSON.stringify(votes));
-    }
-  }, [votes, user?.id]);
 
   const handleLoadMore = () => {
     if (!isLoading && hasMore) {
@@ -74,7 +48,7 @@ const PollPage = () => {
     setVotes(updatedVotes);
   };
 
-  const handleSubmit = async (pollId) => {
+  const handleVoteSubmit = async (pollId) => {
     const selectedOption = votes[pollId]?.selectedOption;
     if (!selectedOption) return;
     try {
@@ -85,30 +59,26 @@ const PollPage = () => {
           userId: user.id,
         })
       ).unwrap();
-
-      setVotes((prevVotes) => ({
-        ...prevVotes,
-        [pollId]: {
-          ...prevVotes[pollId],
-          voted: true,
-        },
-      }));
+  
+      setVotes((prevVotes) => {
+        const updatedVotes = {
+          ...prevVotes,
+          [pollId]: {
+            ...prevVotes[pollId],
+            voted: true, 
+          },
+        };
+        localStorage.setItem(`votes_${user.id}`, JSON.stringify(updatedVotes));
+        return updatedVotes;
+      });
     } catch (error) {
       console.error("Error submitting vote:", error);
     }
   };
 
-  const handleViewResults = async (pollId) => {
-    try {
-      const pollDetails = await dispatch(fetchPollDetails(pollId)).unwrap();
-      setCurrentPollResults({
-        title: pollDetails.title,
-        options: pollDetails.optionList,
-      });
-      setIsPollResultsModalOpen(true);
-    } catch (error) {
-      console.error("Error fetching poll details:", error);
-    }
+  const handleViewResults = (pollId) => {
+    setSelectedPollId(pollId);
+    setIsPollResultsModalOpen(true);
   };
 
   const handleDeletePoll = async () => {
@@ -116,14 +86,11 @@ const PollPage = () => {
     setIsDeleting(true);
     try {
       await dispatch(deletePoll(pollToDelete.id)).unwrap();
-      setAllPolls((prevPolls) =>
-        prevPolls.filter((poll) => poll.id !== pollToDelete.id)
-      );
-      setPollToDelete(null);
-      setIsDeleteModalOpen(false);
     } catch (error) {
       console.error("Error deleting poll:", error);
     } finally {
+      setPollToDelete(null);
+      setIsDeleteModalOpen(false);
       setIsDeleting(false);
     }
   };
@@ -142,9 +109,9 @@ const PollPage = () => {
       )}
       {error && <p className="text-center text-red-500">{error}</p>}
       <div className="m-4">
-        {allPolls && allPolls.length > 0 ? (
+        {polls && polls.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {allPolls.map((poll) => (
+            {polls.map((poll) => (
               <div
                 key={poll.id}
                 className="p-4 border rounded-lg shadow-sm transition flex flex-col min-h-full"
@@ -178,10 +145,8 @@ const PollPage = () => {
                           name={`poll-${poll.id}`}
                           value={option.id}
                           checked={votes[poll.id]?.selectedOption === option.id}
-                          onChange={() =>
-                            handleOptionSelect(poll.id, option.id)
-                          }
-                          disabled={votes[poll.id]?.voted} 
+                          onChange={() => handleOptionSelect(poll.id, option.id)}
+                          disabled={votes[poll.id]?.voted}
                           className="mr-2 cursor-pointer"
                         />
                         <label
@@ -206,14 +171,14 @@ const PollPage = () => {
                 )}
                 <div className="flex justify-center items-center mt-auto">
                   <button
-                    onClick={() => handleSubmit(poll.id)}
+                    onClick={() => handleVoteSubmit(poll.id)}
                     className={`py-2 px-4 rounded-lg mt-2 text-white 
                       ${
                         votes[poll.id]?.voted
                           ? "bg-blue-200 cursor-not-allowed"
                           : "bg-blue-500 hover:bg-blue-600"
                       }`}
-                    disabled={votes[poll.id]?.voted} 
+                    disabled={votes[poll.id]?.voted}
                   >
                     {votes[poll.id]?.voted ? "Submitted" : "Submit"}
                   </button>
@@ -245,16 +210,21 @@ const PollPage = () => {
       {isPollResultsModalOpen && (
         <PollResultsModal
           isOpen={isPollResultsModalOpen}
-          pollData={currentPollResults}
-          onClose={() => setIsPollResultsModalOpen(false)}
+          onClose={() => {
+            setIsPollResultsModalOpen(false);
+            setSelectedPollId(null);
+          }}
+          pollId={selectedPollId}
         />
       )}
       {isDeleteModalOpen && (
-        <DeletePollModal
+        <DeleteConfirmModal
           isOpen={isDeleteModalOpen}
           onClose={() => setIsDeleteModalOpen(false)}
           onConfirm={handleDeletePoll}
           isDeleting={isDeleting}
+          title="Delete Poll"
+          message="Are you sure you want to delete this Poll?"
         />
       )}
     </div>

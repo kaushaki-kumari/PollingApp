@@ -98,6 +98,7 @@ const pollSlice = createSlice({
         state.isLoading = false;
         state.error = action.payload;
       })
+
       .addCase(fetchPollDetails.fulfilled, (state, action) => {
         state.currentPollDetails = action.payload;
       })
@@ -105,18 +106,6 @@ const pollSlice = createSlice({
         state.error = action.payload;
       })
 
-      .addCase(saveVote.fulfilled, (state, action) => {
-        const { pollId, optionId } = action.payload;
-        const pollIndex = state.polls.findIndex((poll) => poll.id === pollId);
-        if (pollIndex !== -1) {
-          const optionIndex = state.polls[pollIndex].optionList.findIndex(
-            (option) => option.id === optionId
-          );
-          if (optionIndex !== -1) {
-            state.polls[pollIndex].optionList[optionIndex].votes += 1;
-          }
-        }
-      })
       .addCase(saveVote.rejected, (_, action) => {
         console.error(action.payload);
       })
