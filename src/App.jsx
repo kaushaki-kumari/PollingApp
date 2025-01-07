@@ -14,6 +14,7 @@ import AddPollPage from "./pages/AddPollPage.jsx";
 import CreateUserPage from "./pages/CreateUserPage.jsx";
 import UsersPage from "./pages/UsersPage.jsx";
 import RouteWrapper from "./routes/CustomRoute.jsx";
+import EditPoll from "./components/EditPoll.jsx";
 
 const App = () => {
   return (
@@ -47,6 +48,7 @@ const App = () => {
             }
           >
             <Route path="/addPoll" element={<AddPollPage />} />
+            <Route path="/poll/edit/:pollId" element={<EditPoll />} />
             <Route path="/createUser" element={<CreateUserPage />} />
             <Route path="/listUsers" element={<UsersPage />} />
           </Route>

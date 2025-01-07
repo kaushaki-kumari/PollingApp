@@ -50,6 +50,64 @@ export const addPoll = createAsyncThunk(
   }
 );
 
+export const updatePoll = createAsyncThunk(
+  "polls/updatePoll",
+  async ({ pollId, title, options }, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.put(`/poll/${pollId}`, {
+        title,
+        options,
+      });
+      return response.data;
+    } catch (err) {
+      return rejectWithValue(handleError(err));
+    }
+  }
+);
+
+export const updateOption = createAsyncThunk(
+  "polls/updateOption",
+  async ({ optionId, optionTitle }, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.put(`/option/edit/${optionId}`, {
+        optionTitle,
+      });
+      return response.data;
+    } catch (err) {
+      return rejectWithValue(handleError(err));
+    }
+  }
+);
+
+export const deleteOption = createAsyncThunk(
+  "polls/deleteOption",
+  async (optionId, { rejectWithValue }) => {
+    try {
+      await axiosInstance.delete(`/option/delete/${optionId}`);
+      return optionId;
+    } catch (err) {
+      return rejectWithValue(handleError(err));
+    }
+  }
+);
+
+export const addPollOption = createAsyncThunk(
+  "polls/addPollOption",
+  async ({ pollId, optionTitle }, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.post(
+        `/poll/addPollOption/${pollId}`,
+        {
+          optionTitle,
+        }
+      );
+      return response.data;
+    } catch (err) {
+      return rejectWithValue(handleError(err));
+    }
+  }
+);
+
 export const saveVote = createAsyncThunk(
   "polls/saveVote",
   async ({ pollId, optionId, userId }, { rejectWithValue }) => {
@@ -141,6 +199,40 @@ const pollSlice = createSlice({
       .addCase(addPoll.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload;
+      })
+      .addCase(updateOption.fulfilled, (state, action) => {
+        const updatedOption = action.payload;
+        const pollIndex = state.polls.findIndex(
+          (poll) => poll.id === updatedOption.pollId
+        );
+        if (pollIndex !== -1) {
+          const optionIndex = state.polls[pollIndex].optionList.findIndex(
+            (option) => option.id === updatedOption.id
+          );
+          if (optionIndex !== -1) {
+            state.polls[pollIndex].optionList[optionIndex] = updatedOption;
+          }
+        }
+      })
+      .addCase(deleteOption.fulfilled, (state, action) => {
+        const optionId = action.payload;
+        const pollIndex = state.polls.findIndex(
+          (poll) => poll.id === action.payload
+        );
+        if (pollIndex !== -1) {
+          state.polls[pollIndex].optionList = state.polls[
+            pollIndex
+          ].optionList.filter((option) => option.id !== optionId);
+        }
+      })
+      .addCase(addPollOption.fulfilled, (state, action) => {
+        const newOption = action.payload;
+        const pollIndex = state.polls.findIndex(
+          (poll) => poll.id === newOption.pollId
+        );
+        if (pollIndex !== -1) {
+          state.polls[pollIndex].optionList.push(newOption);
+        }
       });
   },
 });

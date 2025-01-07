@@ -1,18 +1,16 @@
 import React, { useState } from "react";
 import { useDispatch } from "react-redux";
-import { useNavigate } from "react-router-dom";
 import { addPoll } from "../reducer/pollSlice";
+import { validatePollForm } from "../utils/errorHandler";
 import SuccessMessageModal from "../components/SuccessMessageModal";
 
 const AddPollPage = () => {
   const dispatch = useDispatch();
-  const navigate = useNavigate();
 
   const [pollTitle, setPollTitle] = useState("");
   const [options, setOptions] = useState(["", ""]);
   const [error, setError] = useState({ title: "", options: "" });
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isModalOpen, setIsModalOpen] = useState(false); // State for modal visibility
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleAddOption = () => {
     setOptions((prevOptions) => [...prevOptions, ""]);
@@ -25,17 +23,7 @@ const AddPollPage = () => {
 
   const handlePollSubmit = async (e) => {
     e.preventDefault();
-    if (isSubmitting) return;
-    let titleError = "";
-    let optionsError = "";
-
-    if (pollTitle.length < 10) {
-      titleError = "Poll title must be at least 10 characters long.";
-    }
-
-    if (options.length < 2 || options.some((option) => option.trim() === "")) {
-      optionsError = "At least 2 valid options are required and Options cannot be empty.";
-    }
+    const { titleError, optionsError } = validatePollForm(pollTitle, options);
 
     if (titleError || optionsError) {
       setError({ title: titleError, options: optionsError });
@@ -51,15 +39,17 @@ const AddPollPage = () => {
 
     try {
       await dispatch(addPoll(payload)).unwrap();
-      setIsModalOpen(true); // Show modal on successful submission
+      setIsModalOpen(true);
     } catch (err) {
-      setError({ title: "", options: "" });
       console.error("Error adding poll:", err);
       setError({ title: "Failed to add poll. Please try again.", options: "" });
     }
   };
 
   const handleOptionChange = (index, value) => {
+    if (value.trim() && error.options) {
+      setError((prev) => ({ ...prev, options: "" }));
+    }
     setOptions((prevOptions) => {
       const updatedOptions = [...prevOptions];
       updatedOptions[index] = value;
@@ -68,8 +58,10 @@ const AddPollPage = () => {
   };
 
   const handleTitleChange = (value) => {
-    setError((prevError) => ({ ...prevError, title: "" }));
     setPollTitle(value);
+    if (value.length >= 10) {
+      setError((prevError) => ({ ...prevError, title: "" }));
+    }
   };
 
   return (
@@ -87,7 +79,9 @@ const AddPollPage = () => {
           </h1>
           <form onSubmit={handlePollSubmit} className="space-y-4">
             <div>
-              <label className="block text-gray-600 font-medium mb-2">Poll Title</label>
+              <label className="block text-gray-600 font-medium mb-2">
+                Poll Title
+              </label>
               <input
                 type="text"
                 value={pollTitle}
@@ -95,11 +89,15 @@ const AddPollPage = () => {
                 className="w-full p-2 border border-gray-300 rounded"
                 placeholder="Enter poll title"
               />
-              {error.title && <p className="text-red-500 text-sm mt-2">{error.title}</p>}
+              {error.title && (
+                <p className="text-red-500 text-sm mt-2">{error.title}</p>
+              )}
             </div>
 
             <div>
-              <label className="block text-gray-600 font-medium mb-2">Options</label>
+              <label className="block text-gray-600 font-medium mb-2">
+                Options
+              </label>
               {options.map((option, index) => (
                 <div key={index} className="flex items-center gap-2 mb-2">
                   <input
@@ -127,7 +125,9 @@ const AddPollPage = () => {
               >
                 + Add Option
               </button>
-              {error.options && <p className="text-red-500 text-sm mt-2">{error.options}</p>}
+              {error.options && (
+                <p className="text-red-500 text-sm mt-2">{error.options}</p>
+              )}
             </div>
 
             <button
