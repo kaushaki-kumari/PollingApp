@@ -4,6 +4,7 @@ import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { validateEmail } from "../utils/validateEmail";
 import { fetchRoles, signup } from "../reducer/authSlice";
 import { useDispatch, useSelector } from "react-redux";
+import SuccessMessageModal from "../components/SuccessMessageModal";
 
 const SignUpPage = () => {
   const [formData, setFormData] = useState({
@@ -20,7 +21,6 @@ const SignUpPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [showConfirmation, setShowConfirmation] = useState(false);
-  const navigate = useNavigate();
   const dispatch = useDispatch();
 
   const { roles, rolesLoading } = useSelector((state) => state.auth);
@@ -298,17 +298,11 @@ const SignUpPage = () => {
           </form>
         </div>
       ) : (
-        <div className="max-w-md w-full space-y-6 p-6 bg-white rounded-xl shadow-lg text-center">
-          <h2 className="text-2xl font-bold text-blue-600">
-            Account Successfully Created! Welcome to the Poll Management System.
-          </h2>
-          <button
-            onClick={() => navigate("/login")}
-            className="mt-4 py-2 px-6 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700"
-          >
-            Go to Login
-          </button>
-        </div>
+        <SuccessMessageModal
+          message="Account Successfully Created! Welcome to the Poll Management System."
+          buttonText="Go to Login"
+          redirectUrl="/login"
+        />
       )}
     </div>
   );

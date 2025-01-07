@@ -205,6 +205,7 @@ const PollPage = () => {
           ) : (
             <p>No more polls</p>
           )}
+         
         </div>
       </div>
       {isPollResultsModalOpen && (
