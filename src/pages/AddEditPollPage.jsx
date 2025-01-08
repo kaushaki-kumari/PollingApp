@@ -3,11 +3,11 @@ import { useDispatch, useSelector } from "react-redux";
 import { useParams, useNavigate } from "react-router-dom";
 import {
   fetchPollDetails,
-  updatePoll,
   updateOption,
   deleteOption,
   addPollOption,
   addPoll,
+  editPoll,
 } from "../reducer/pollSlice";
 import { validatePollForm } from "../utils/errorHandler";
 import SuccessMessageModal from "../components/SuccessMessageModal";
@@ -108,7 +108,7 @@ const AddEditPollPage = () => {
         }
 
         if (currentPollDetails.title !== pollTitle) {
-          await dispatch(updatePoll({ pollId, title: pollTitle })).unwrap();
+          await dispatch(editPoll({ pollId, title: pollTitle })).unwrap();
         }
       } else {
         const validOptions = options

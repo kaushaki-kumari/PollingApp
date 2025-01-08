@@ -47,7 +47,7 @@ const App = () => {
             }
           >
             <Route path="/addpoll" element={<AddEditPollPage />} />
-            <Route path="/addeditpoll/:pollId" element={<AddEditPollPage />} />
+            <Route path="/editpoll/:pollId" element={<AddEditPollPage />} />
             <Route path="/createUser" element={<CreateUserPage />} />
             <Route path="/listUsers" element={<UsersPage />} />
           </Route>

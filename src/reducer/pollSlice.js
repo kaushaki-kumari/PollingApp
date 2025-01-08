@@ -50,11 +50,11 @@ export const addPoll = createAsyncThunk(
   }
 );
 
-export const updatePoll = createAsyncThunk(
-  "polls/updatePoll",
+export const editPoll = createAsyncThunk(
+  "polls/editPoll",
   async ({ pollId, title, options }, { rejectWithValue }) => {
     try {
-      const response = await axiosInstance.put(`/poll/${pollId}`, {
+      const response = await axiosInstance.put(`/ poll/${pollId}`, {
         title,
         options,
       });

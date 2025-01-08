@@ -124,7 +124,7 @@ const PollPage = () => {
               {user?.roleId === ROLE_ADMIN && (
                 <div className="flex justify-center items-center mb-2 gap-2 text-red-500">
                   <FaRegEdit className="cursor-pointer w-8 h-8" 
-                  onClick={() => navigate(`/addeditpoll/${poll.id}`)}
+                  onClick={() => navigate(`/editpoll/${poll.id}`)}
                   />
                   <FaChartBar
                     className="cursor-pointer w-8 h-8"
