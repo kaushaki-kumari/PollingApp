@@ -35,6 +35,79 @@ export const fetchPollDetails = createAsyncThunk(
   }
 );
 
+export const addPoll = createAsyncThunk(
+  "polls/addPoll",
+  async ({ title, options }, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.post("/poll/add", {
+        title,
+        options,
+      });
+      return { ...response.data };
+    } catch (err) {
+      return rejectWithValue(handleError(err));
+    }
+  }
+);
+
+export const editPoll = createAsyncThunk(
+  "polls/editPoll",
+  async ({ pollId, title, options }, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.put(`/ poll/${pollId}`, {
+        title,
+        options,
+      });
+      return response.data;
+    } catch (err) {
+      return rejectWithValue(handleError(err));
+    }
+  }
+);
+
+export const updateOption = createAsyncThunk(
+  "polls/updateOption",
+  async ({ optionId, optionTitle }, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.put(`/option/edit/${optionId}`, {
+        optionTitle,
+      });
+      return response.data;
+    } catch (err) {
+      return rejectWithValue(handleError(err));
+    }
+  }
+);
+
+export const deleteOption = createAsyncThunk(
+  "polls/deleteOption",
+  async (optionId, { rejectWithValue }) => {
+    try {
+      await axiosInstance.delete(`/option/delete/${optionId}`);
+      return optionId;
+    } catch (err) {
+      return rejectWithValue(handleError(err));
+    }
+  }
+);
+
+export const addPollOption = createAsyncThunk(
+  "polls/addPollOption",
+  async ({ pollId, optionTitle }, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.post(
+        `/poll/addPollOption/${pollId}`,
+        {
+          optionTitle,
+        }
+      );
+      return response.data;
+    } catch (err) {
+      return rejectWithValue(handleError(err));
+    }
+  }
+);
+
 export const saveVote = createAsyncThunk(
   "polls/saveVote",
   async ({ pollId, optionId, userId }, { rejectWithValue }) => {
@@ -79,7 +152,6 @@ const pollSlice = createSlice({
         state.isLoading = true;
         state.error = null;
       })
-
       .addCase(fetchPolls.fulfilled, (state, action) => {
         state.isLoading = false;
         const { rows, currentPage } = action.payload;
@@ -111,6 +183,55 @@ const pollSlice = createSlice({
       })
       .addCase(deletePoll.rejected, (_, action) => {
         console.error(action.payload);
+      })
+      .addCase(addPoll.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(addPoll.fulfilled, (state, action) => {
+        state.isLoading = false;
+        const newPoll = action.payload;
+        if (newPoll.options && Array.isArray(newPoll.options)) {
+          state.polls.unshift(newPoll);
+        }
+      })
+      .addCase(addPoll.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload;
+      })
+      .addCase(updateOption.fulfilled, (state, action) => {
+        const updatedOption = action.payload;
+        const pollIndex = state.polls.findIndex(
+          (poll) => poll.id === updatedOption.pollId
+        );
+        if (pollIndex !== -1) {
+          const optionIndex = state.polls[pollIndex].optionList.findIndex(
+            (option) => option.id === updatedOption.id
+          );
+          if (optionIndex !== -1) {
+            state.polls[pollIndex].optionList[optionIndex] = updatedOption;
+          }
+        }
+      })
+      .addCase(deleteOption.fulfilled, (state, action) => {
+        const optionId = action.payload;
+        const pollIndex = state.polls.findIndex(
+          (poll) => poll.id === action.payload
+        );
+        if (pollIndex !== -1) {
+          state.polls[pollIndex].optionList = state.polls[
+            pollIndex
+          ].optionList.filter((option) => option.id !== optionId);
+        }
+      })
+      .addCase(addPollOption.fulfilled, (state, action) => {
+        const newOption = action.payload;
+        const pollIndex = state.polls.findIndex(
+          (poll) => poll.id === newOption.pollId
+        );
+        if (pollIndex !== -1) {
+          state.polls[pollIndex].optionList.push(newOption);
+        }
       });
   },
 });

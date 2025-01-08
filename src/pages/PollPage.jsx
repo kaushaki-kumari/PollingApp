@@ -7,12 +7,15 @@ import { ROLE_ADMIN } from "../utils/constant";
 import Skeleton from "../components/Skeleton";
 import PollResultsModal from "../components/PollResultsModal";
 import DeleteConfirmModal from "../components/DeleteConfirmModal";
+import { useNavigate } from "react-router-dom";
 
 const PollPage = () => {
   const dispatch = useDispatch();
   const { polls, isLoading, error, currentPage, hasMore } = useSelector(
     (state) => state.polls
   );
+  const navigate = useNavigate();
+
   const { user } = useSelector((state) => state.auth);
   const [votes, setVotes] = useState(
     JSON.parse(localStorage.getItem(`votes_${user?.id}`)) || {}
@@ -22,14 +25,17 @@ const PollPage = () => {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [pollToDelete, setPollToDelete] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false);
-  const isInitialLoad = useRef(true);
+  const isInitialLoad = useRef(false);
 
   useEffect(() => {
-    if (isInitialLoad.current) {
+    if (!isInitialLoad.current && polls.length === 0) {
       dispatch(fetchPolls());
-      isInitialLoad.current = false;
+      isInitialLoad.current = true;
     }
-  }, [dispatch]);
+    return () => {
+      isInitialLoad.current = false;
+    };
+  }, [dispatch, polls.length]);
 
   const handleLoadMore = () => {
     if (!isLoading && hasMore) {
@@ -59,13 +65,13 @@ const PollPage = () => {
           userId: user.id,
         })
       ).unwrap();
-  
+
       setVotes((prevVotes) => {
         const updatedVotes = {
           ...prevVotes,
           [pollId]: {
             ...prevVotes[pollId],
-            voted: true, 
+            voted: true,
           },
         };
         localStorage.setItem(`votes_${user.id}`, JSON.stringify(updatedVotes));
@@ -109,88 +115,87 @@ const PollPage = () => {
       )}
       {error && <p className="text-center text-red-500">{error}</p>}
       <div className="m-4">
-        {polls && polls.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {polls.map((poll) => (
-              <div
-                key={poll.id}
-                className="p-4 border rounded-lg shadow-sm transition flex flex-col min-h-full"
-              >
-                {user?.roleId === ROLE_ADMIN && (
-                  <div className="flex justify-center items-center mb-2 gap-2 text-red-500">
-                    <FaRegEdit className="cursor-pointer w-8 h-8" />
-                    <FaChartBar
-                      className="cursor-pointer w-8 h-8"
-                      onClick={() => handleViewResults(poll.id)}
-                    />
-                    <MdDelete
-                      className="w-8 h-8 cursor-pointer"
-                      onClick={() => {
-                        setPollToDelete(poll);
-                        setIsDeleteModalOpen(true);
-                      }}
-                    />
-                  </div>
-                )}
-                <h2 className="text-lg font-semibold flex justify-between items-center">
-                  {poll.title}
-                </h2>
-                {poll.optionList && poll.optionList.length > 0 ? (
-                  <ul className="space-y-2 flex-grow">
-                    {poll.optionList.map((option) => (
-                      <li key={option.id} className="flex items-center">
-                        <input
-                          type="radio"
-                          id={`poll-${poll.id}-option-${option.id}`}
-                          name={`poll-${poll.id}`}
-                          value={option.id}
-                          checked={votes[poll.id]?.selectedOption === option.id}
-                          onChange={() => handleOptionSelect(poll.id, option.id)}
-                          disabled={votes[poll.id]?.voted}
-                          className="mr-2 cursor-pointer"
-                        />
-                        <label
-                          htmlFor={`poll-${poll.id}-option-${option.id}`}
-                          className={`cursor-pointer ${
-                            votes[poll.id]?.selectedOption === option.id
-                              ? "font-bold text-blue-600"
-                              : ""
-                          } ${
-                            votes[poll.id]?.voted
-                              ? "text-gray-500 cursor-not-allowed"
-                              : ""
-                          }`}
-                        >
-                          {option.optionTitle}
-                        </label>
-                      </li>
-                    ))}
-                  </ul>
-                ) : (
-                  <p className="text-gray-500">No options available.</p>
-                )}
-                <div className="flex justify-center items-center mt-auto">
-                  <button
-                    onClick={() => handleVoteSubmit(poll.id)}
-                    className={`py-2 px-4 rounded-lg mt-2 text-white 
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {polls.map((poll, index) => (
+            <div
+              key={`${poll.id}-${index}`}
+              className="p-4 border rounded-lg shadow-sm transition flex flex-col min-h-full"
+            >
+              {user?.roleId === ROLE_ADMIN && (
+                <div className="flex justify-center items-center mb-2 gap-2 text-red-500">
+                  <FaRegEdit className="cursor-pointer w-8 h-8" 
+                  onClick={() => navigate(`/editpoll/${poll.id}`)}
+                  />
+                  <FaChartBar
+                    className="cursor-pointer w-8 h-8"
+                    onClick={() => handleViewResults(poll.id)}
+                  />
+                  <MdDelete
+                    className="w-8 h-8 cursor-pointer"
+                    onClick={() => {
+                      setPollToDelete(poll);
+                      setIsDeleteModalOpen(true);
+                    }}
+                  />
+                </div>
+              )}
+              <h2 className="text-lg font-semibold flex justify-between items-center">
+                {poll.title}
+              </h2>
+              {poll.optionList && poll.optionList.length > 0 ? (
+                <ul className="space-y-2 flex-grow">
+                  {poll.optionList.map((option) => (
+                    <li key={option.id} className="flex items-center">
+                      <input
+                        type="radio"
+                        id={`poll-${poll.id}-option-${option.id}`}
+                        name={`poll-${poll.id}`}
+                        value={option.id}
+                        checked={votes[poll.id]?.selectedOption === option.id}
+                        onChange={() => handleOptionSelect(poll.id, option.id)}
+                        disabled={votes[poll.id]?.voted}
+                        className="mr-2 cursor-pointer"
+                      />
+                      <label
+                        htmlFor={`poll-${poll.id}-option-${option.id}`}
+                        className={`cursor-pointer ${
+                          votes[poll.id]?.selectedOption === option.id
+                            ? "font-bold text-blue-600"
+                            : ""
+                        } ${
+                          votes[poll.id]?.voted
+                            ? "text-gray-500 cursor-not-allowed"
+                            : ""
+                        }`}
+                      >
+                        {option.optionTitle}
+                      </label>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="text-gray-500">No options available.</p>
+              )}
+              <div className="flex justify-center items-center mt-auto">
+                <button
+                  onClick={() => handleVoteSubmit(poll.id)}
+                  className={`py-2 px-4 rounded-lg mt-2 text-white 
                       ${
                         votes[poll.id]?.voted
                           ? "bg-blue-200 cursor-not-allowed"
                           : "bg-blue-500 hover:bg-blue-600"
                       }`}
-                    disabled={votes[poll.id]?.voted}
-                  >
-                    {votes[poll.id]?.voted ? "Submitted" : "Submit"}
-                  </button>
-                </div>
+                  disabled={votes[poll.id]?.voted}
+                >
+                  {votes[poll.id]?.voted ? "Submitted" : "Submit"}
+                </button>
               </div>
-            ))}
-          </div>
-        ) : (
-          <p className="text-center text-gray-600">No polls available.</p>
-        )}
-        <div className="flex justify-center mt-6 text-white">
-          {hasMore ? (
+            </div>
+          ))}
+        </div>
+
+        {hasMore ? (
+          <div className="flex justify-center mt-6 text-white">
             <button
               onClick={handleLoadMore}
               disabled={isLoading}
@@ -202,10 +207,10 @@ const PollPage = () => {
             >
               {isLoading ? "Loading..." : "Load More"}
             </button>
-          ) : (
-            <p>No more polls</p>
-          )}
-        </div>
+          </div>
+        ) : (
+          <p className="text-center text-gray-600 mt-2">No polls available.</p>
+        )}
       </div>
       {isPollResultsModalOpen && (
         <PollResultsModal

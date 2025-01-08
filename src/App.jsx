@@ -10,10 +10,10 @@ import {
 import LoginPage from "./pages/LoginPage.jsx";
 import PollPage from "./pages/PollPage.jsx";
 import SignUpPage from "./pages/SignUpPage.jsx";
-import AddPollPage from "./pages/AddPollPage.jsx";
 import CreateUserPage from "./pages/CreateUserPage.jsx";
 import UsersPage from "./pages/UsersPage.jsx";
 import RouteWrapper from "./routes/CustomRoute.jsx";
+import AddEditPollPage from "./pages/AddEditPollPage.jsx";
 
 const App = () => {
   return (
@@ -46,7 +46,8 @@ const App = () => {
               </RouteWrapper>
             }
           >
-            <Route path="/addPoll" element={<AddPollPage />} />
+            <Route path="/addpoll" element={<AddEditPollPage />} />
+            <Route path="/editpoll/:pollId" element={<AddEditPollPage />} />
             <Route path="/createUser" element={<CreateUserPage />} />
             <Route path="/listUsers" element={<UsersPage />} />
           </Route>
