@@ -152,7 +152,6 @@ const pollSlice = createSlice({
         state.isLoading = true;
         state.error = null;
       })
-
       .addCase(fetchPolls.fulfilled, (state, action) => {
         state.isLoading = false;
         const { rows, currentPage } = action.payload;

@@ -25,14 +25,17 @@ const PollPage = () => {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [pollToDelete, setPollToDelete] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false);
-  const isInitialLoad = useRef(true);
+  const isInitialLoad = useRef(false);
 
   useEffect(() => {
-    if (isInitialLoad.current) {
+    if (!isInitialLoad.current && polls.length === 0) {
       dispatch(fetchPolls());
-      isInitialLoad.current = false;
+      isInitialLoad.current = true;
     }
-  }, [dispatch]);
+    return () => {
+      isInitialLoad.current = false;
+    };
+  }, [dispatch, polls.length]);
 
   const handleLoadMore = () => {
     if (!isLoading && hasMore) {
@@ -121,7 +124,7 @@ const PollPage = () => {
               {user?.roleId === ROLE_ADMIN && (
                 <div className="flex justify-center items-center mb-2 gap-2 text-red-500">
                   <FaRegEdit className="cursor-pointer w-8 h-8" 
-                  onClick={() => navigate(`/poll/edit/${poll.id}`)}
+                  onClick={() => navigate(`/addeditpoll/${poll.id}`)}
                   />
                   <FaChartBar
                     className="cursor-pointer w-8 h-8"

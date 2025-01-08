@@ -4,15 +4,22 @@ import { useNavigate } from "react-router-dom";
 const SuccessMessageModal = ({ message, buttonText, redirectUrl }) => {
   const navigate = useNavigate();
 
+  const handleButtonClick = () => {
+    navigate(redirectUrl);
+    window.location.reload();
+  };
+
   return (
-    <div className="max-w-md w-full space-y-6 p-6 bg-white rounded-xl shadow-lg text-center">
-      <h2 className="text-2xl font-bold text-blue-600">{message}</h2>
-      <button
-        onClick={() => navigate(redirectUrl)}
-        className="mt-4 py-2 px-6 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700"
-      >
-        {buttonText}
-      </button>
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+      <div className="bg-white w-11/12 max-w-md p-6 rounded shadow-lg text-center">
+        <h2 className="text-xl font-semibold mb-4">{message}</h2>
+        <button
+          onClick={handleButtonClick}
+          className="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600"
+        >
+          {buttonText}
+        </button>
+      </div>
     </div>
   );
 };
