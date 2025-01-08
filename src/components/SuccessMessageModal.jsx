@@ -6,7 +6,7 @@ const SuccessMessageModal = ({ message, buttonText, redirectUrl }) => {
 
   const handleButtonClick = () => {
     navigate(redirectUrl);
-    window.location.reload();
+    navigate(0)
   };
 
   return (
