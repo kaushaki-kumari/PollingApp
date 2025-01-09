@@ -1,23 +1,19 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchUsers } from "../reducer/usersSlice";
+import { fetchUsers,fetchRoles } from "../reducer/usersSlice";
 import { GrPrevious, GrNext } from "react-icons/gr";
 
 const UsersListPage = () => {
   const dispatch = useDispatch();
-  const { users, isLoading, error, currentPage, totalPages } = useSelector(
+  const { users,roles, isLoading, error, currentPage, totalPages } = useSelector(
     (state) => state.users
   );
 
   const [pageSize, setPageSize] = useState(10);
 
-  const roleMap = {
-    1: "Admin",
-    2: "User",
-  };
-
   useEffect(() => {
     dispatch(fetchUsers({ pageNo: 1, pageSize }));
+    dispatch(fetchRoles());
   }, []);
 
   const loadPage = (pageNo) => {
@@ -128,7 +124,7 @@ const UsersListPage = () => {
         <td className="border px-4 py-2">{user.lastName}</td>
         <td className="border px-4 py-2">{user.email}</td>
         <td className="border px-4 py-2">
-          {roleMap[user.roleId] || "Unknown"}
+        {roles.find((role) => role.id === user.roleId)?.name || "Unknown"}
         </td>
         <td className="border px-4 py-2">
           {new Date(user.createdAt).toLocaleString()}
