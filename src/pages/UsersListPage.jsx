@@ -1,16 +1,15 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchUsers,fetchRoles } from "../reducer/usersSlice";
+import { fetchUsers, fetchRoles } from "../reducer/usersSlice";
 import { GrPrevious, GrNext } from "react-icons/gr";
 
 const UsersListPage = () => {
   const dispatch = useDispatch();
-  const { users,roles, isLoading, error, currentPage, totalPages } = useSelector(
-    (state) => state.users
-  );
+  const { users, roles, isLoading, error, currentPage, totalPages } =
+    useSelector((state) => state.users);
 
   const [pageSize, setPageSize] = useState(10);
-
+  const pageSizes = [5, 10, 20, 50];
   useEffect(() => {
     dispatch(fetchUsers({ pageNo: 1, pageSize }));
     dispatch(fetchRoles());
@@ -124,7 +123,7 @@ const UsersListPage = () => {
         <td className="border px-4 py-2">{user.lastName}</td>
         <td className="border px-4 py-2">{user.email}</td>
         <td className="border px-4 py-2">
-        {roles.find((role) => role.id === user.roleId)?.name || "Unknown"}
+          {roles.find((role) => role.id === user.roleId)?.name || "Unknown"}
         </td>
         <td className="border px-4 py-2">
           {new Date(user.createdAt).toLocaleString()}
@@ -167,10 +166,11 @@ const UsersListPage = () => {
             onChange={handlePageSizeChange}
             className="px-2 py-1 border rounded"
           >
-            <option value={5}>5</option>
-            <option value={10}>10</option>
-            <option value={20}>20</option>
-            <option value={50}>50</option>
+            {pageSizes.map((size) => (
+              <option key={size} value={size}>
+                {size}
+              </option>
+            ))}
           </select>
         </div>
         {renderPagination()}
