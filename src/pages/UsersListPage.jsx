@@ -1,27 +1,125 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchUsers } from "../reducer/usersSlice";
-import { FaSpinner } from "react-icons/fa";
+import { GrPrevious, GrNext } from "react-icons/gr";
 
 const UsersListPage = () => {
   const dispatch = useDispatch();
-  const { users, isLoading, error, currentPage, hasMore } = useSelector(
+  const { users, isLoading, error, currentPage, totalPages } = useSelector(
     (state) => state.users
   );
 
-  useEffect(() => {
-    dispatch(fetchUsers({ pageNo: 1 }));
-  }, [dispatch]);
+  const [pageSize, setPageSize] = useState(10);
 
-  const loadMoreUsers = () => {
-    if (hasMore && !isLoading) {
-      dispatch(fetchUsers({ pageNo: currentPage + 1 }));
+  const roleMap = {
+    1: "Admin",
+    2: "User",
+  };
+
+  useEffect(() => {
+    dispatch(fetchUsers({ pageNo: 1, pageSize }));
+  }, []);
+
+  const loadPage = (pageNo) => {
+    if (!isLoading && pageNo > 0 && pageNo <= totalPages) {
+      dispatch(fetchUsers({ pageNo, pageSize }));
     }
+  };
+
+  const handlePageSizeChange = (e) => {
+    const newSize = parseInt(e.target.value, 10);
+    setPageSize(newSize);
+    dispatch(fetchUsers({ pageNo: 1, pageSize: newSize }));
+  };
+
+  const renderPagination = () => {
+    const pages = [];
+    const startPage = Math.max(1, currentPage - 1);
+    const endPage = Math.min(totalPages, currentPage + 1);
+
+    for (let i = startPage; i <= endPage; i++) {
+      pages.push(i);
+    }
+
+    return (
+      <div className="flex justify-center items-center mt-4">
+        <button
+          onClick={() => loadPage(currentPage - 1)}
+          className={`
+            px-3 py-2 mx-1 rounded
+            ${
+              currentPage === 1
+                ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                : "bg-gray-200 hover:bg-gray-300 text-gray-700"
+            }
+          `}
+          disabled={currentPage === 1}
+        >
+          <GrPrevious />
+        </button>
+        {startPage > 1 && (
+          <>
+            <button
+              onClick={() => loadPage(1)}
+              className="px-3 py-1 mx-1 rounded bg-gray-200 hover:bg-gray-300"
+            >
+              1
+            </button>
+            {startPage > 2 && <span className="px-2">...</span>}
+          </>
+        )}
+        {pages.map((page) => (
+          <button
+            key={page}
+            onClick={() => loadPage(page)}
+            className={`px-3 py-1 mx-1 rounded ${
+              page === currentPage
+                ? "bg-blue-500 text-white"
+                : "bg-gray-200 hover:bg-gray-300"
+            }`}
+          >
+            {page}
+          </button>
+        ))}
+        {endPage < totalPages && (
+          <>
+            {endPage < totalPages - 1 && <span className="px-2">...</span>}
+            <button
+              onClick={() => loadPage(totalPages)}
+              className="px-3 py-1 mx-1 rounded bg-gray-200 hover:bg-gray-300"
+            >
+              {totalPages}
+            </button>
+          </>
+        )}
+        <button
+          onClick={() => loadPage(currentPage + 1)}
+          className={`
+            px-3 py-2 mx-1 rounded
+            ${
+              currentPage === totalPages
+                ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                : "bg-gray-200 hover:bg-gray-300 text-gray-700"
+            }
+          `}
+          disabled={currentPage === totalPages}
+        >
+          <GrNext />
+        </button>
+      </div>
+    );
   };
 
   const renderUsers = () => {
     if (error) return <p className="text-red-500">{error}</p>;
-    if (!users.length && !isLoading) return <tr><td><p>No users found.</p></td></tr>;
+    if (!users.length && !isLoading)
+      return (
+        <tr>
+          <td colSpan="8">
+            <p className="text-center">No users found.</p>
+          </td>
+        </tr>
+      );
 
     return users.map((user) => (
       <tr key={user.id}>
@@ -29,8 +127,9 @@ const UsersListPage = () => {
         <td className="border px-4 py-2">{user.firstName}</td>
         <td className="border px-4 py-2">{user.lastName}</td>
         <td className="border px-4 py-2">{user.email}</td>
-        <td className="border px-4 py-2">{user.companyId || "null"}</td>
-        <td className="border px-4 py-2">{user.roleId}</td>
+        <td className="border px-4 py-2">
+          {roleMap[user.roleId] || "Unknown"}
+        </td>
         <td className="border px-4 py-2">
           {new Date(user.createdAt).toLocaleString()}
         </td>
@@ -44,16 +143,16 @@ const UsersListPage = () => {
   return (
     <div className="p-4">
       <h1 className="text-center text-2xl font-bold mb-4">User List</h1>
+
       <div className="overflow-x-auto">
-        <table className="w-full table-auto">
+        <table className="w-full table-auto ">
           <thead>
             <tr>
               <th className="border px-4 py-2">ID</th>
               <th className="border px-4 py-2">First Name</th>
               <th className="border px-4 py-2">Last Name</th>
               <th className="border px-4 py-2">Email</th>
-              <th className="border px-4 py-2">Company ID</th>
-              <th className="border px-4 py-2">Role ID</th>
+              <th className="border px-4 py-2">Role</th>
               <th className="border px-4 py-2">Created At</th>
               <th className="border px-4 py-2">Updated At</th>
             </tr>
@@ -61,19 +160,25 @@ const UsersListPage = () => {
           <tbody>{renderUsers()}</tbody>
         </table>
       </div>
-      {hasMore && (
-        <div className="flex justify-center mt-4">
-          <button
-            onClick={loadMoreUsers}
-            className={`px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600${
-              isLoading ? "opacity-50 cursor-not-allowed" : ""
-            }`}
-            disabled={isLoading}
+      <div className="block md:flex justify-center gap-6">
+        <div className="mt-4 flex justify-center">
+          <label htmlFor="pageSize" className="mr-2 font-bold">
+            Users per page:
+          </label>
+          <select
+            id="pageSize"
+            value={pageSize}
+            onChange={handlePageSizeChange}
+            className="px-2 py-1 border rounded"
           >
-            {isLoading ? <FaSpinner className="animate-spin" /> : "Load More"}
-          </button>
+            <option value={5}>5</option>
+            <option value={10}>10</option>
+            <option value={20}>20</option>
+            <option value={50}>50</option>
+          </select>
         </div>
-      )}
+        {renderPagination()}
+      </div>
     </div>
   );
 };

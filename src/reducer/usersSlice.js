@@ -1,19 +1,19 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axiosInstance from "../utils/axiosInstance"; 
 import { handleError } from "../utils/errorHandler";
-import { POLL_LIMIT } from "../utils/constant";  
 
 export const fetchUsers = createAsyncThunk(
   "users/fetchUsers",
-  async ({ pageNo = 1 }, { rejectWithValue }) => {  
+  async ({ pageNo = 1, pageSize=10 }, { rejectWithValue }) => {  
     try {
       const response = await axiosInstance.get(
-        `/user/list/${pageNo}?limit=${POLL_LIMIT}`  
+        `/user/list/${pageNo}?limit=${pageSize}`  
       );
       return {
         rows: response.data.rows,
         totalCount: response.data.count,
         currentPage: pageNo,
+        pageSize,
       };
     } catch (err) {
       const errorMessage = handleError(err);
@@ -30,6 +30,7 @@ const usersSlice = createSlice({
     error: null,
     currentPage: 1,
     totalCount: 0,
+    totalPages:0,
     hasMore: true,
   },
   reducers: {},
@@ -41,10 +42,12 @@ const usersSlice = createSlice({
       })
       .addCase(fetchUsers.fulfilled, (state, action) => {
         state.isLoading = false;
-        const { rows, currentPage, totalCount } = action.payload;
-        state.hasMore = rows.length > 0 && state.users.length + rows.length < totalCount;
-        state.users = [...state.users, ...rows];
+        const { rows, currentPage, totalCount , pageSize} = action.payload;
+        state.users = rows;
+        state.totalCount = totalCount;
         state.currentPage = currentPage;
+        state.totalPages = Math.ceil(totalCount/pageSize);
+        state.hasMore = currentPage < state.totalPages;
       })
       .addCase(fetchUsers.rejected, (state, action) => {
         state.isLoading = false;
