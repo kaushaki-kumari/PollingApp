@@ -4,7 +4,7 @@ import { fetchPolls, saveVote, deletePoll } from "../reducer/pollSlice";
 import { FaRegEdit, FaChartBar } from "react-icons/fa";
 import { MdDelete } from "react-icons/md";
 import { ROLE_ADMIN } from "../utils/constant";
-import Skeleton from "../components/Skeleton";
+import { Skeleton } from "../components/Skeleton";
 import PollResultsModal from "../components/PollResultsModal";
 import DeleteConfirmModal from "../components/DeleteConfirmModal";
 import { useNavigate } from "react-router-dom";

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchUsers, fetchRoles } from "../reducer/usersSlice";
 import { GrPrevious, GrNext } from "react-icons/gr";
+import { TableSkeleton } from "../components/Skeleton";
 
 const UsersListPage = () => {
   const dispatch = useDispatch();
@@ -10,10 +11,11 @@ const UsersListPage = () => {
 
   const [pageSize, setPageSize] = useState(10);
   const pageSizes = [5, 10, 20, 50];
+
   useEffect(() => {
     dispatch(fetchUsers({ pageNo: 1, pageSize }));
     dispatch(fetchRoles());
-  }, []);
+  }, [dispatch, pageSize]);
 
   const loadPage = (pageNo) => {
     if (!isLoading && pageNo > 0 && pageNo <= totalPages) {
@@ -40,14 +42,11 @@ const UsersListPage = () => {
       <div className="flex justify-center items-center mt-4">
         <button
           onClick={() => loadPage(currentPage - 1)}
-          className={`
-            px-3 py-2 mx-1 rounded
-            ${
-              currentPage === 1
-                ? "bg-gray-100 text-gray-400 cursor-not-allowed"
-                : "bg-gray-200 hover:bg-gray-300 text-gray-700"
-            }
-          `}
+          className={`px-3 py-2 mx-1 rounded ${
+            currentPage === 1
+              ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+              : "bg-gray-200 hover:bg-gray-300 text-gray-700"
+          }`}
           disabled={currentPage === 1}
         >
           <GrPrevious />
@@ -89,14 +88,11 @@ const UsersListPage = () => {
         )}
         <button
           onClick={() => loadPage(currentPage + 1)}
-          className={`
-            px-3 py-2 mx-1 rounded
-            ${
-              currentPage === totalPages
-                ? "bg-gray-100 text-gray-400 cursor-not-allowed"
-                : "bg-gray-200 hover:bg-gray-300 text-gray-700"
-            }
-          `}
+          className={`px-3 py-2 mx-1 rounded ${
+            currentPage === totalPages
+              ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+              : "bg-gray-200 hover:bg-gray-300 text-gray-700"
+          }`}
           disabled={currentPage === totalPages}
         >
           <GrNext />
@@ -110,8 +106,8 @@ const UsersListPage = () => {
     if (!users.length && !isLoading)
       return (
         <tr>
-          <td colSpan="8">
-            <p className="text-center">No users found.</p>
+          <td colSpan="7" className="text-center py-4">
+            No users found.
           </td>
         </tr>
       );
@@ -140,21 +136,26 @@ const UsersListPage = () => {
       <h1 className="text-center text-2xl font-bold mb-4">User List</h1>
 
       <div className="overflow-x-auto">
-        <table className="w-full table-auto ">
-          <thead>
-            <tr>
-              <th className="border px-4 py-2">ID</th>
-              <th className="border px-4 py-2">First Name</th>
-              <th className="border px-4 py-2">Last Name</th>
-              <th className="border px-4 py-2">Email</th>
-              <th className="border px-4 py-2">Role</th>
-              <th className="border px-4 py-2">Created At</th>
-              <th className="border px-4 py-2">Updated At</th>
-            </tr>
-          </thead>
-          <tbody>{renderUsers()}</tbody>
-        </table>
+        {isLoading ? (
+          <TableSkeleton />
+        ) : (
+          <table className="w-full table-auto">
+            <thead>
+              <tr>
+                <th className="border px-4 py-2">ID</th>
+                <th className="border px-4 py-2">First Name</th>
+                <th className="border px-4 py-2">Last Name</th>
+                <th className="border px-4 py-2">Email</th>
+                <th className="border px-4 py-2">Role</th>
+                <th className="border px-4 py-2">Created At</th>
+                <th className="border px-4 py-2">Updated At</th>
+              </tr>
+            </thead>
+            <tbody>{renderUsers()}</tbody>
+          </table>
+        )}
       </div>
+
       <div className="block md:flex justify-center gap-6">
         <div className="mt-4 flex justify-center">
           <label htmlFor="pageSize" className="mr-2 font-bold">
