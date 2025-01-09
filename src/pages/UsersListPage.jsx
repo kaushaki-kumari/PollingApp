@@ -43,11 +43,11 @@ const UsersListPage = () => {
         <button
           onClick={() => loadPage(currentPage - 1)}
           className={`px-3 py-2 mx-1 rounded ${
-            currentPage === 1
+            currentPage === 1 || isLoading
               ? "bg-gray-100 text-gray-400 cursor-not-allowed"
               : "bg-gray-200 hover:bg-gray-300 text-gray-700"
           }`}
-          disabled={currentPage === 1}
+          disabled={currentPage === 1 || isLoading}
         >
           <GrPrevious />
         </button>
@@ -55,7 +55,10 @@ const UsersListPage = () => {
           <>
             <button
               onClick={() => loadPage(1)}
-              className="px-3 py-1 mx-1 rounded bg-gray-200 hover:bg-gray-300"
+              className={`px-3 py-1 mx-1 rounded bg-gray-200 hover:bg-gray-300 ${
+                isLoading ? "cursor-not-allowed" : ""
+              }`}
+              disabled={isLoading}
             >
               1
             </button>
@@ -70,7 +73,8 @@ const UsersListPage = () => {
               page === currentPage
                 ? "bg-blue-500 text-white"
                 : "bg-gray-200 hover:bg-gray-300"
-            }`}
+            } ${isLoading ? "cursor-not-allowed" : ""}`}
+            disabled={isLoading}
           >
             {page}
           </button>
@@ -80,7 +84,12 @@ const UsersListPage = () => {
             {endPage < totalPages - 1 && <span className="px-2">...</span>}
             <button
               onClick={() => loadPage(totalPages)}
-              className="px-3 py-1 mx-1 rounded bg-gray-200 hover:bg-gray-300"
+              className={`px-3 py-1 mx-1 rounded ${
+                isLoading
+                  ? " bg-gray-200 cursor-not-allowed"
+                  : "bg-gray-300 hover:bg-gray-200"
+              }`}
+              disabled={isLoading}
             >
               {totalPages}
             </button>
@@ -89,11 +98,11 @@ const UsersListPage = () => {
         <button
           onClick={() => loadPage(currentPage + 1)}
           className={`px-3 py-2 mx-1 rounded ${
-            currentPage === totalPages
+            currentPage === totalPages || isLoading
               ? "bg-gray-100 text-gray-400 cursor-not-allowed"
               : "bg-gray-200 hover:bg-gray-300 text-gray-700"
           }`}
-          disabled={currentPage === totalPages}
+          disabled={currentPage === totalPages || isLoading}
         >
           <GrNext />
         </button>

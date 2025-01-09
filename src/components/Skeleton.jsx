@@ -52,7 +52,4 @@ const TableSkeleton = () => {
   );
 };
 
-
-
-
 export { Skeleton, TableSkeleton };
