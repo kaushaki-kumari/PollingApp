@@ -11,7 +11,7 @@ import LoginPage from "./pages/LoginPage.jsx";
 import PollPage from "./pages/PollPage.jsx";
 import SignUpPage from "./pages/SignUpPage.jsx";
 import CreateUserPage from "./pages/CreateUserPage.jsx";
-import UsersPage from "./pages/UsersPage.jsx";
+import UsersListPage from "./pages/UsersListPage.jsx";
 import RouteWrapper from "./routes/CustomRoute.jsx";
 import AddEditPollPage from "./pages/AddEditPollPage.jsx";
 
@@ -49,7 +49,7 @@ const App = () => {
             <Route path="/addpoll" element={<AddEditPollPage />} />
             <Route path="/editpoll/:pollId" element={<AddEditPollPage />} />
             <Route path="/createUser" element={<CreateUserPage />} />
-            <Route path="/listUsers" element={<UsersPage />} />
+            <Route path="/listUsers" element={<UsersListPage />} />
           </Route>
         </Route>
 

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams, useNavigate } from "react-router-dom";
+import { FaSpinner } from "react-icons/fa";
 import {
   fetchPollDetails,
   updateOption,
@@ -225,7 +226,7 @@ const AddEditPollPage = () => {
               disabled={isLoading || isUpdating}
             >
               {isUpdating ? (
-                <span className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                <FaSpinner className="animate-spin"/>
               ) : isEditMode ? (
                 "Update Poll"
               ) : (
