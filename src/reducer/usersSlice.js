@@ -27,7 +27,7 @@ export const fetchRoles = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const response = await axiosInstance.get("/role/list");
-      return response.data;
+      return response.data;  
     } catch (err) {
       const errorMessage = handleError(err);
       return rejectWithValue(errorMessage);
@@ -39,7 +39,7 @@ const usersSlice = createSlice({
   name: "users",
   initialState: {
     users: [],
-    roles: [],
+    roles:[],
     isLoading: false,
     error: null,
     currentPage: 1,
@@ -67,10 +67,15 @@ const usersSlice = createSlice({
         state.isLoading = false;
         state.error = action.payload;
       })
+      .addCase(fetchRoles.pending, (state) => {
+        state.isLoading = true;
+      })
       .addCase(fetchRoles.fulfilled, (state, action) => {
+        state.isLoading = false;
         state.roles = action.payload;
       })
       .addCase(fetchRoles.rejected, (state, action) => {
+        state.isLoading = false;
         state.error = action.payload;
       });
   },
