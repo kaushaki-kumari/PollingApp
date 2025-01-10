@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { validateEmail } from "../utils/validateEmail";
 
-const RegisterForm = ({ onSubmit, roles, rolesLoading, submitText, initialData = {} }) => {
+const newUserForm = ({ onSubmit, roles, rolesLoading, submitText, initialData = {} }) => {
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -80,8 +80,8 @@ const RegisterForm = ({ onSubmit, roles, rolesLoading, submitText, initialData =
   };
 
   return (
-    <form className="space-y-4" onSubmit={handleSubmit}>
-      <div className="space-y-2">
+    <form className="space-y-4 max-w-md mx-4" onSubmit={handleSubmit}>
+      <div className="space-y-2 ">
         <div>
           <label
             htmlFor="firstName"
@@ -158,7 +158,7 @@ const RegisterForm = ({ onSubmit, roles, rolesLoading, submitText, initialData =
               <option>Loading roles...</option>
             ) : (
               roles.map((role) => (
-                <option key={role.id} value={role.name}>
+                <option key={role.id} value={role.id}>
                   {role.name}
                 </option>
               ))
@@ -233,4 +233,4 @@ const RegisterForm = ({ onSubmit, roles, rolesLoading, submitText, initialData =
   );
 };
 
-export default RegisterForm;
+export default newUserForm;

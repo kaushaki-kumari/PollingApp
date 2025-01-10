@@ -2,8 +2,9 @@ import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchRoles, signup } from "../reducer/authSlice";
 import SuccessMessageModal from "../components/SuccessMessageModal";
-import RegisterForm from "../components/RegisterForm";
+import NewUsersForm from "../components/NewUsersForm";
 import { Link } from "react-router-dom";
+import { ROLE_USER, ROLE_ADMIN } from "../utils/constant"
 
 const SignUpPage = () => {
   const [showConfirmation, setShowConfirmation] = useState(false);
@@ -17,7 +18,7 @@ const SignUpPage = () => {
   const handleSubmit = async (formData) => {
     const formDataToSend = {
       ...formData,
-      roleId: formData.role === "user" ? 1 : 2,
+       roleId: formData.role === "user" ? ROLE_ADMIN : ROLE_USER,
     };
 
     try {
@@ -35,7 +36,7 @@ const SignUpPage = () => {
           <h2 className="text-3xl font-bold text-center text-gray-900">
             Sign Up
           </h2>
-          <RegisterForm
+          <NewUsersForm
             onSubmit={handleSubmit}
             roles={roles}
             rolesLoading={rolesLoading}

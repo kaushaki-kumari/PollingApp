@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import RegisterForm from "../components/RegisterForm";
+import NewUsersForm from "../components/NewUsersForm";
 import { fetchRoles, createUser } from "../reducer/usersSlice";
 import SuccessMessageModal from "../components/SuccessMessageModal";
+import { ROLE_USER, ROLE_ADMIN } from "../utils/constant"
 
 const CreateUserPage = () => {
   const dispatch = useDispatch();
@@ -18,7 +19,7 @@ const CreateUserPage = () => {
     setErrorMessage(null);
     const formDataToSend = {
       ...formData,
-      roleId: formData.role === "user" ? 1 : 2,
+      roleId: formData.role === "user" ? ROLE_ADMIN : ROLE_USER,
     };
 
     try {
@@ -33,7 +34,7 @@ const CreateUserPage = () => {
     <>
       <div className="max-w-lg mx-auto mt-6">
         <h1 className="text-xl font-bold text-center">Create User</h1>
-        <RegisterForm
+        <NewUsersForm
           onSubmit={handleSubmit}
           roles={roles}
           rolesLoading={isLoading}
