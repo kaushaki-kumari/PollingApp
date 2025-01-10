@@ -35,6 +35,22 @@ export const fetchRoles = createAsyncThunk(
   }
 );
 
+export const createUser = createAsyncThunk(
+  "users/createUser",
+  async (userData, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.post("/user/create", userData);
+      return response.data;
+    } catch (err) {
+      const errorMessage = handleError(err);
+      if (err.response?.status === 500) {
+        return rejectWithValue("This email is already registered. Please use a different email.");
+      }
+      return rejectWithValue(errorMessage);
+    }
+  }
+);
+
 const usersSlice = createSlice({
   name: "users",
   initialState: {
@@ -75,6 +91,17 @@ const usersSlice = createSlice({
         state.roles = action.payload;
       })
       .addCase(fetchRoles.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload;
+      })
+      .addCase(createUser.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(createUser.fulfilled, (state) => {
+        state.isLoading = false;
+      })
+      .addCase(createUser.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload;
       });
