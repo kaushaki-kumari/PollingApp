@@ -33,20 +33,28 @@ const NavBar = () => {
     };
   }, [mobileMenuOpen]);
 
+  const handleCloseMobileMenu = () => {
+    setMobileMenuOpen(false);
+  };
+
   return (
-    <nav className="bg-white shadow-lg">
+    <nav className="bg-white shadow-lg fixed top-0 left-0 right-0 z-50">
       <div className="max-w-7xl mx-auto px-4">
         <div className="flex justify-between h-16 items-center">
           <div className="flex items-center space-x-4">
             <div className="hidden md:block">
-            <NavItem to="/polls" >
-              Polls
-            </NavItem>
+              <NavItem to="/polls" onClick={handleCloseMobileMenu}>
+                Polls
+              </NavItem>
             </div>
             {user?.roleId === ROLE_ADMIN && (
               <div className="hidden md:flex space-x-4">
                 {adminNavItems.map((item) => (
-                  <NavItem key={item.to} to={item.to}>
+                  <NavItem
+                    key={item.to}
+                    to={item.to}
+                    onClick={handleCloseMobileMenu}
+                  >
                     {item.label}
                   </NavItem>
                 ))}
@@ -104,11 +112,17 @@ const NavBar = () => {
 
         {mobileMenuOpen && (
           <div className="absolute top-16 left-0 w-full bg-white shadow-lg md:hidden space-y-4">
-            <NavItem to="/polls">Polls</NavItem>
+            <NavItem to="/polls" onClick={handleCloseMobileMenu}>
+              Polls
+            </NavItem>
             {user?.roleId === ROLE_ADMIN && (
               <div className="flex flex-col space-y-2">
                 {adminNavItems.map((item) => (
-                  <NavItem key={item.to} to={item.to}>
+                  <NavItem
+                    key={item.to}
+                    to={item.to}
+                    onClick={handleCloseMobileMenu}
+                  >
                     {item.label}
                   </NavItem>
                 ))}

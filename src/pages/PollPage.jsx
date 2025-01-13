@@ -102,7 +102,7 @@ const PollPage = () => {
   };
 
   return (
-    <div className="container mx-auto mt-6 px-4">
+    <div className="min-h-screen pt-20 pb-8 px-4 bg-gray-50 container mx-auto mt-6">
       <h1 className="text-2xl font-bold text-center">Polls</h1>
       {isLoading && currentPage === 1 && (
         <div className="m-4">
@@ -123,8 +123,9 @@ const PollPage = () => {
             >
               {user?.roleId === ROLE_ADMIN && (
                 <div className="flex justify-center items-center mb-2 gap-2 text-red-500">
-                  <FaRegEdit className="cursor-pointer w-8 h-8" 
-                  onClick={() => navigate(`/editpoll/${poll.id}`)}
+                  <FaRegEdit
+                    className="cursor-pointer w-8 h-8"
+                    onClick={() => navigate(`/editpoll/${poll.id}`)}
                   />
                   <FaChartBar
                     className="cursor-pointer w-8 h-8"

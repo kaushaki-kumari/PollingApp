@@ -79,7 +79,7 @@ const LoginPage = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <div className="max-w-md w-full space-y-8 p-8 bg-white rounded-xl shadow-lg">
+      <div className="max-w-md w-11/12 space-y-8 p-8 bg-white rounded-xl shadow-lg">
         <h2 className="text-3xl font-bold text-center text-gray-900">Login</h2>
         <form className="mt-8 space-y-3" onSubmit={handleSubmit}>
           <div className="rounded-md shadow-sm space-y-4">
