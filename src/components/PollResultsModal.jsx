@@ -46,8 +46,23 @@ const PollResultsModal = ({ isOpen, onClose, pollId }) => {
     loadPollDetails();
   }, [dispatch, pollId]);
 
-  const truncateText = (text, maxLength = 12) =>
+  const truncateText = (text, maxLength = 10) =>
     text.length > maxLength ? `${text.substring(0, maxLength)}...` : text;
+
+  const splitTitleBasedOnWordCount = (title) => {
+    if (!title) return [title];
+    const words = title.split(' ');
+    const totalWords = words.length;
+    if (totalWords <= 25) {
+      return [title];
+    }
+    const wordsPerLine = Math.ceil(totalWords / 3);
+    const firstLine = words.slice(0, wordsPerLine).join(' ');
+    const secondLine = words.slice(wordsPerLine, wordsPerLine * 2).join(' ');
+    const thirdLine = words.slice(wordsPerLine * 2).join(' ');
+    
+    return [firstLine, secondLine, thirdLine];
+  };
 
   const renderModalContent = () => {
     if (status === "loading") {
@@ -91,7 +106,7 @@ const PollResultsModal = ({ isOpen, onClose, pollId }) => {
         },
       ],
     };
-
+    const titleLines = splitTitleBasedOnWordCount(pollData.title);
     const chartOptions = {
       responsive: true,
       maintainAspectRatio: false,
@@ -99,8 +114,9 @@ const PollResultsModal = ({ isOpen, onClose, pollId }) => {
         legend: { position: "top" },
         title: {
           display: true,
-          text: pollData.title,
-          font: { size: 16, weight: "bold" },
+          fullSize: true,
+          text: titleLines,
+          font: { size: 14, weight: "bold" },
         },
         tooltip: {
           callbacks: {

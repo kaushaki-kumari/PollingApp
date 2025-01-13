@@ -146,103 +146,105 @@ const AddEditPollPage = () => {
   };
 
   return (
-    <div className="relative max-w-2xl mx-auto mt-8 p-6 bg-white rounded shadow">
-      {isModalOpen && (
-        <SuccessMessageModal
-          message={`Poll successfully ${
-            isEditMode ? "updated😝😝" : "added😎😎"
-          }!`}
-          buttonText="Go to Polls Page"
-          redirectUrl="/polls"
-        />
-      )}
+    <div className="min-h-screen pt-20 pb-8 px-4 bg-gray-50">
+      <div className="relative max-w-2xl mx-auto mt-8 p-6 bg-white rounded shadow">
+        {isModalOpen && (
+          <SuccessMessageModal
+            message={`Poll successfully ${
+              isEditMode ? "updated😝😝" : "added😎😎"
+            }!`}
+            buttonText="Go to Polls Page"
+            redirectUrl="/polls"
+          />
+        )}
 
-      <div className={isModalOpen ? "opacity-50" : ""}>
-        <div className="flex justify-center mb-6">
-          <h1 className="text-2xl font-semibold text-gray-800">
-            {isEditMode ? "Edit Poll" : "Add New Poll"}
-          </h1>
-        </div>
+        <div className={isModalOpen ? "opacity-50" : ""}>
+          <div className="flex justify-center mb-6">
+            <h1 className="text-2xl font-semibold text-gray-800">
+              {isEditMode ? "Edit Poll" : "Add New Poll"}
+            </h1>
+          </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-gray-600 font-medium mb-2">
-              Poll Title
-            </label>
-            <input
-              type="text"
-              value={pollTitle}
-              onChange={handleTitleChange}
-              className="w-full p-2 border border-gray-300 rounded"
-              placeholder="Enter poll title"
-              disabled={isUpdating}
-            />
-            {error.title && (
-              <p className="text-red-500 text-sm mt-2">{error.title}</p>
-            )}
-          </div>
-          <div>
-            <label className="block text-gray-600 font-medium mb-2">
-              Options
-            </label>
-            {options.map((option, index) => (
-              <div key={option.id} className="flex items-center gap-2 mb-2">
-                <input
-                  type="text"
-                  value={option.optionTitle}
-                  onChange={(e) => handleOptionChange(index, e.target.value)}
-                  className="w-full p-2 border border-gray-300 rounded"
-                  placeholder={`Option ${index + 1}`}
-                  disabled={isUpdating}
-                />
-                {options.length > 2 && (
-                  <button
-                    type="button"
-                    onClick={() => handleRemoveOption(index)}
-                    className="text-red-500 font-semibold"
-                    disabled={isUpdating}
-                  >
-                    Remove
-                  </button>
-                )}
-              </div>
-            ))}
-            <button
-              type="button"
-              onClick={handleAddOption}
-              className="mt-2 text-blue-500 font-semibold"
-              disabled={isUpdating}
-            >
-              + Add Option
-            </button>
-            {error.options && (
-              <p className="text-red-500 text-sm mt-2">{error.options}</p>
-            )}
-          </div>
-          <div className="flex space-x-4">
-            <button
-              type="submit"
-              className="flex-1 bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 disabled:bg-blue-300 disabled:cursor-not-allowed"
-              disabled={isLoading || isUpdating}
-            >
-              {isUpdating ? (
-                <FaSpinner className="animate-spin"/>
-              ) : isEditMode ? (
-                "Update Poll"
-              ) : (
-                "Add Poll"
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <label className="block text-gray-600 font-medium mb-2">
+                Poll Title
+              </label>
+              <input
+                type="text"
+                value={pollTitle}
+                onChange={handleTitleChange}
+                className="w-full p-2 border border-gray-300 rounded"
+                placeholder="Enter poll title"
+                disabled={isUpdating}
+              />
+              {error.title && (
+                <p className="text-red-500 text-sm mt-2">{error.title}</p>
               )}
-            </button>
-            <button
-              type="button"
-              onClick={() => navigate("/polls")}
-              className="flex-1 bg-gray-300 text-gray-700 py-2 px-4 rounded hover:bg-gray-400"
-              disabled={isUpdating}
-            >
-              Cancel
-            </button>
-          </div>
-        </form>
+            </div>
+            <div>
+              <label className="block text-gray-600 font-medium mb-2">
+                Options
+              </label>
+              {options.map((option, index) => (
+                <div key={option.id} className="flex items-center gap-2 mb-2">
+                  <input
+                    type="text"
+                    value={option.optionTitle}
+                    onChange={(e) => handleOptionChange(index, e.target.value)}
+                    className="w-full p-2 border border-gray-300 rounded"
+                    placeholder={`Option ${index + 1}`}
+                    disabled={isUpdating}
+                  />
+                  {options.length > 2 && (
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveOption(index)}
+                      className="text-red-500 font-semibold"
+                      disabled={isUpdating}
+                    >
+                      Remove
+                    </button>
+                  )}
+                </div>
+              ))}
+              <button
+                type="button"
+                onClick={handleAddOption}
+                className="mt-2 text-blue-500 font-semibold"
+                disabled={isUpdating}
+              >
+                + Add Option
+              </button>
+              {error.options && (
+                <p className="text-red-500 text-sm mt-2">{error.options}</p>
+              )}
+            </div>
+            <div className="flex space-x-4">
+              <button
+                type="submit"
+                className="flex-1 bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 disabled:bg-blue-300 disabled:cursor-not-allowed"
+                disabled={isLoading || isUpdating}
+              >
+                {isUpdating ? (
+                  <FaSpinner className="animate-spin" />
+                ) : isEditMode ? (
+                  "Update Poll"
+                ) : (
+                  "Add Poll"
+                )}
+              </button>
+              <button
+                type="button"
+                onClick={() => navigate("/polls")}
+                className="flex-1 bg-gray-300 text-gray-700 py-2 px-4 rounded hover:bg-gray-400"
+                disabled={isUpdating}
+              >
+                Cancel
+              </button>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
   );

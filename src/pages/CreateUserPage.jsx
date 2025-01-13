@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import NewUsersForm from "../components/NewUsersForm";
 import { fetchRoles, createUser } from "../reducer/usersSlice";
 import SuccessMessageModal from "../components/SuccessMessageModal";
-import { ROLE_USER, ROLE_ADMIN } from "../utils/constant"
+import { ROLE_USER, ROLE_ADMIN } from "../utils/constant";
 
 const CreateUserPage = () => {
   const dispatch = useDispatch();
@@ -31,19 +31,15 @@ const CreateUserPage = () => {
   };
 
   return (
-    <>
-      <div className="max-w-lg mx-auto mt-6">
-        <h1 className="text-xl font-bold text-center">Create User</h1>
-        <NewUsersForm
-          onSubmit={handleSubmit}
-          roles={roles}
-          rolesLoading={isLoading}
-          submitText="Create User"
-        />
-        {errorMessage && (
-          <p className="text-red-700 p-3 mb-4">{errorMessage}</p>
-        )}
-      </div>
+    <div className="min-h-screen pt-20 pb-8 px-4 bg-gray-50 max-w-lg mx-auto mt-6">
+      <h1 className="text-xl font-bold text-center">Create User</h1>
+      <NewUsersForm
+        onSubmit={handleSubmit}
+        roles={roles}
+        rolesLoading={isLoading}
+        submitText="Create User"
+      />
+      {errorMessage && <p className="text-red-700 p-3 mb-4">{errorMessage}</p>}
 
       {showConfirmation && (
         <SuccessMessageModal
@@ -52,7 +48,7 @@ const CreateUserPage = () => {
           redirectUrl="/createUser"
         />
       )}
-    </>
+    </div>
   );
 };
 
