@@ -6,29 +6,16 @@ import { TableSkeleton } from "../components/Skeleton";
 
 const UsersListPage = () => {
   const dispatch = useDispatch();
-<<<<<<< HEAD
-  const { users,roles, isLoading, error, currentPage, totalPages } = useSelector(
-    (state) => state.users
-  );
-
-  const [pageSize, setPageSize] = useState(10);
-
-=======
   const { users, roles, isLoading, error, currentPage, totalPages } =
     useSelector((state) => state.users);
 
   const [pageSize, setPageSize] = useState(10);
->>>>>>> main
   const pageSizes = [5, 10, 20, 50];
 
   useEffect(() => {
     dispatch(fetchUsers({ pageNo: 1, pageSize }));
     dispatch(fetchRoles());
-<<<<<<< HEAD
   }, []);
-=======
-  }, [dispatch, pageSize]);
->>>>>>> main
 
   const loadPage = (pageNo) => {
     if (!isLoading && pageNo > 0 && pageNo <= totalPages) {
@@ -134,28 +121,6 @@ const UsersListPage = () => {
         </tr>
       );
 
-<<<<<<< HEAD
-    return users.map((user) => {
-      const userRole = roles.find((role) => role.id === user.roleId);
-      return (
-        <tr key={user.id}>
-          <td className="border px-4 py-2">{user.id}</td>
-          <td className="border px-4 py-2">{user.firstName}</td>
-          <td className="border px-4 py-2">{user.lastName}</td>
-          <td className="border px-4 py-2">{user.email}</td>
-          <td className="border px-4 py-2">
-          {userRole ? userRole.name : "Unknown"}
-          </td>
-          <td className="border px-4 py-2">
-            {new Date(user.createdAt).toLocaleString()}
-          </td>
-          <td className="border px-4 py-2">
-            {new Date(user.updatedAt).toLocaleString()}
-          </td>
-        </tr>
-      );
-    });
-=======
     return users.map((user) => (
       <tr key={user.id}>
         <td className="border px-4 py-2">{user.id}</td>
@@ -173,7 +138,6 @@ const UsersListPage = () => {
         </td>
       </tr>
     ));
->>>>>>> main
   };
 
   return (
