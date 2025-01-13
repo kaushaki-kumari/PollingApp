@@ -4,7 +4,6 @@ import { fetchRoles, signup } from "../reducer/authSlice";
 import SuccessMessageModal from "../components/SuccessMessageModal";
 import NewUsersForm from "../components/NewUsersForm";
 import { Link } from "react-router-dom";
-import { ROLE_USER, ROLE_ADMIN } from "../utils/constant"
 
 const SignUpPage = () => {
   const [showConfirmation, setShowConfirmation] = useState(false);
@@ -18,7 +17,6 @@ const SignUpPage = () => {
   const handleSubmit = async (formData) => {
     const formDataToSend = {
       ...formData,
-       roleId: formData.role === "user" ? ROLE_ADMIN : ROLE_USER,
     };
 
     try {

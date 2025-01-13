@@ -7,7 +7,7 @@ const newUserForm = ({ onSubmit, roles, rolesLoading, submitText, initialData = 
     firstName: "",
     lastName: "",
     email: "",
-    role: "",
+    roleId: "",
     password: "",
     confirmPassword: "",
     ...initialData,
@@ -141,16 +141,16 @@ const newUserForm = ({ onSubmit, roles, rolesLoading, submitText, initialData = 
         </div>
         <div>
           <label
-            htmlFor="role"
+            htmlFor="roleId"
             className="block text-sm font-medium text-gray-700"
           >
             Role
           </label>
           <select
-            id="role"
-            name="role"
+            id="roleId"
+            name="roleId"
             className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md"
-            value={formData.role}
+            value={formData.roleId}
             onChange={handleInputChange}
           >
             <option>Select Role</option>
